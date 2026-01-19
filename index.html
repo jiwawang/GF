@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>終端</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #D5E5E5;
+            font-family: 'Press Start+2P', 'Courier New', monospace;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        body::before {
+            content: '🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 200%;
+            height: 200%;
+            font-size: 50px;
+            line-height: 100px;
+            opacity: 0.08;
+            z-index: 0;
+            pointer-events: none;
+            word-wrap: break-word;
+        }
+
+        .terminal-window {
+            width: 85%;
+            max-width: 1000px;
+            height: 75%;
+            background: #F9DAD5;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: auto;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            resize: both;
+            min-width: 400px;
+            min-height: 300px;
+        }
+        
+        .terminal-window::-webkit-resizer {
+            background: transparent;
+        }
+
+        .window-header {
+            background: #f0c5c0;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid #e8b5b0;
+            cursor: move;
+        }
+
+        .window-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .window-button {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .button-red { background: #ff5f56; }
+        .button-yellow { background: #ffbd2e; }
+        .button-green { background: #27c93f; }
+
+        .pixel-cat {
+            width: 48px;
+            height: 48px;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+
+        .terminal {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            color: #F6599F;
+        }
+
+        .terminal-header {
+            color: #4B4E7B;
+            margin-bottom: 20px;
+            font-size: 25px;
+            line-height: 1.8;
+            text-shadow: none;
+            white-space: pre;
+        }
+
+        .output-line {
+            margin: 8px 0;
+            line-height: 2;
+            font-size: 25px;
+        }
+
+        .prompt {
+            color: #4B4E7B;
+        }
+
+        .user-input {
+            color: #F6599F;
+        }
+
+        .input-line {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+            font-size: 25px;
+        }
+
+        .input-line input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #F6599F;
+            font-family: 'Press Start+2P', 'Courier New', monospace;
+            font-size: 25px;
+            padding: 5px;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 12px;
+            background: #F6599F;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0; }
+        }
+
+        @keyframes catType {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-3px); }
+        }
+
+        .cat-typing {
+            animation: catType 0.3s ease-in-out 3;
+        }
+
+        .error {
+            color: #ff4444;
+        }
+
+        .success {
+            color: #00ff88;
+        }
+
+        .info {
+            color: #ffaa00;
+        }
+
+        .system {
+            color: #4B4E7B;
+        }
+
+        .editor-window {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 70%;
+            max-width: 800px;
+            height: 60%;
+            background: #F9DAD5;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .editor-window.active {
+            display: flex;
+        }
+
+        .editor-header {
+            background: #f0c5c0;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid #e8b5b0;
+            cursor: move;
+        }
+
+        .editor-title {
+            color: #4B4E7B;
+            font-size: 12px;
+        }
+
+        .run-button {
+            background: #4B4E7B;
+            color: #F9DAD5;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-family: 'Press Start+2P', monospace;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .run-button:hover {
+            background: #F6599F;
+            transform: scale(1.05);
+        }
+
+        .run-button:active {
+            transform: scale(0.95);
+        }
+
+        .editor-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .editor-textarea {
+            flex: 1;
+            background: #ffffff;
+            border: 2px solid #e8b5b0;
+            border-radius: 10px;
+            padding: 15px;
+            font-family: 'Press Start+2P', monospace;
+            font-size: 12px;
+            color: #4B4E7B;
+            resize: none;
+            outline: none;
+            line-height: 1.8;
+        }
+
+        .editor-output {
+            margin-top: 15px;
+            background: #ffffff;
+            border: 2px solid #e8b5b0;
+            border-radius: 10px;
+            padding: 15px;
+            font-family: 'Press Start+2P', monospace;
+            font-size: 10px;
+            color: #F6599F;
+            max-height: 150px;
+            overflow-y: auto;
+            line-height: 1.8;
+        }
+
+        .guide-text {
+            color: #4B4E7B;
+            opacity: 0.6;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #F9DAD5;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #f0c5c0;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #e8b5b0;
+        }
+    </style>
+</head>
+<body>
+    <div class="terminal-window" id="terminalWindow">
+        <div class="window-header" id="windowHeader">
+            <div class="window-buttons">
+                <span class="window-button button-red"></span>
+                <span class="window-button button-yellow"></span>
+                <span class="window-button button-green"></span>
+            </div>
+            <canvas id="pixelCat" class="pixel-cat" width="48" height="48"></canvas>
+        </div>
+        <div class="terminal" id="terminal">
+            <div class="terminal-header">    /\_/\  
+   ( o.o ) 
+    > ^ <
+
+Haruki、おかえりなさい
+Haruki，欢迎回来呢
+            </div>
+            <div id="output"></div>
+            <div class="input-line">
+                <span class="prompt">user@terminal:~$ </span>
+                <input type="text" id="commandInput" autofocus autocomplete="off">
+            </div>
+        </div>
+    </div>
+
+    <div class="editor-window" id="editorWindow">
+        <div class="editor-header" id="editorHeader">
+            <div class="window-buttons">
+                <span class="window-button button-red" onclick="closeEditor()"></span>
+                <span class="window-button button-yellow"></span>
+                <span class="window-button button-green"></span>
+            </div>
+            <span class="editor-title" id="editorTitle">女朋友编辑器</span>
+            <button class="run-button" onclick="runCode()">RUN</button>
+        </div>
+        <div class="editor-content">
+            <textarea class="editor-textarea" id="codeEditor" placeholder="在这里输入代码..."></textarea>
+            <div class="editor-output" id="editorOutput"></div>
+        </div>
+    </div>
+
+    <script>
+        // 绘制像素猫
+        function drawPixelCat(ctx, state = 'idle') {
+            ctx.clearRect(0, 0, 48, 48);
+            
+            const pixels = [
+                [0,0,0,1,1,0,0,0,0,1,1,0],
+                [0,0,1,2,2,1,0,0,1,2,2,1],
+                [0,1,2,2,2,2,1,1,2,2,2,2,1],
+                [1,2,2,3,3,2,2,2,2,3,3,2,1],
+                [1,2,2,2,2,2,2,2,2,2,2,2,1],
+                [1,2,2,2,4,2,2,2,2,4,2,2,1],
+                [1,2,2,4,4,4,2,2,4,4,4,2,1],
+                [0,1,2,2,4,2,2,2,2,4,2,1,0],
+                [0,0,1,2,2,2,2,2,2,2,1,0,0],
+                [0,0,0,1,1,1,1,1,1,1,0,0,0]
+            ];
+
+            const colors = {
+                0: 'transparent',
+                1: '#5a5a5a',
+                2: '#e8e8e8',
+                3: '#000000',
+                4: '#ff9ec7'
+            };
+
+            const scale = 4;
+            pixels.forEach((row, y) => {
+                row.forEach((pixel, x) => {
+                    if (pixel !== 0) {
+                        ctx.fillStyle = colors[pixel];
+                        ctx.fillRect(x * scale, y * scale + 4, scale, scale);
+                    }
+                });
+            });
+        }
+
+        const canvas = document.getElementById('pixelCat');
+        const ctx = canvas.getContext('2d');
+        drawPixelCat(ctx);
+
+        const output = document.getElementById('output');
+        const input = document.getElementById('commandInput');
+        const terminal = document.getElementById('terminal');
+        const editorWindow = document.getElementById('editorWindow');
+        const codeEditor = document.getElementById('codeEditor');
+        const editorOutput = document.getElementById('editorOutput');
+        const editorTitle = document.getElementById('editorTitle');
+
+        // 女朋友系统状态
+        let girlfriendState = {
+            name: null,
+            nameAsked: false,
+            angryLevel: 0,
+            isSilent: false,
+            waitingForConfirmation: false,
+            tempName: null,
+            exclamationCount: 0,
+            lastAskTime: null,
+            askTimerActive: false,
+            firstTimeOpen: true
+        };
+
+        const angryResponses = [
+            "哈哈，haruki君我听不懂呢",
+            "别闹了，Haruki君！！",
+            "我要生气了，Haruki",
+            "...",
+            "？滚开"
+        ];
+
+        // 启动定时询问
+        function startPeriodicAsk() {
+            if (girlfriendState.askTimerActive || girlfriendState.name) return;
+            girlfriendState.askTimerActive = true;
+            girlfriendState.lastAskTime = Date.now();
+            
+            const askInterval = setInterval(() => {
+                if (girlfriendState.name) {
+                    clearInterval(askInterval);
+                    girlfriendState.askTimerActive = false;
+                    return;
+                }
+                
+                const now = Date.now();
+                if (now - girlfriendState.lastAskTime >= 10000) {
+                    girlfriendState.lastAskTime = now;
+                    const exclamation = '!'.repeat(girlfriendState.exclamationCount + 1);
+                    addOutput(`<span class="system">Haruki君真的不记得我叫什么了吗${exclamation}😠：</span>`);
+                    girlfriendState.waitingForConfirmation = false;
+                    girlfriendState.exclamationCount++;
+                }
+            }, 10000);
+        }
+
+        // 检查是否询问名字
+        function checkAskingName(text) {
+            const keywords = ['你是谁', '你叫什么', 'whoru', '你的名字'];
+            return keywords.some(keyword => text.toLowerCase().includes(keyword.toLowerCase()));
+        }
+
+        // 打开编辑器
+        function openEditor() {
+            editorWindow.classList.add('active');
+            editorTitle.textContent = `${girlfriendState.name} 编辑器`;
+            
+            if (girlfriendState.firstTimeOpen) {
+                girlfriendState.firstTimeOpen = false;
+                codeEditor.value = `# 欢迎使用 "${girlfriendState.name}" 编程语言！
+# 这是一个特殊的交互式编程环境
+# 
+# 基本语法示例：
+# print "Hello World"
+# 
+# 点击右上角的 RUN 按钮来运行代码
+# 祝你编程愉快！ ❤️
+
+print "Hello, ${girlfriendState.name}!"`;
+                editorOutput.innerHTML = '<span class="guide-text">输出将显示在这里...</span>';
+            }
+            
+            codeEditor.focus();
+        }
+
+        // 关闭编辑器
+        function closeEditor() {
+            editorWindow.classList.remove('active');
+            input.focus();
+        }
+
+        // 运行代码
+        function runCode() {
+            const code = codeEditor.value;
+            editorOutput.innerHTML = '';
+            
+            try {
+                const lines = code.split('\n');
+                let output = [];
+                
+                for (let line of lines) {
+                    line = line.trim();
+                    if (line.startsWith('#') || line === '') continue;
+                    
+                    if (line.startsWith('print ')) {
+                        const text = line.substring(6).replace(/^["']|["']$/g, '');
+                        output.push(`<span style="color: #4B4E7B;">${text}</span>`);
+                    }
+                }
+                
+                if (output.length === 0) {
+                    editorOutput.innerHTML = '<span class="guide-text">没有输出</span>';
+                } else {
+                    editorOutput.innerHTML = output.join('<br>');
+                }
+            } catch (e) {
+                editorOutput.innerHTML = `<span style="color: #ff4444;">错误: ${e.message}</span>`;
+            }
+        }
+
+        const commands = {
+            help: () => {
+                return `<span class="info">可用命令：</span>
+  help     - 显示此帮助信息
+  clear    - 清屏
+  echo     - 显示文本（用法：echo [文本]）
+  date     - 显示当前日期时间
+  about    - 关于此网站
+  whoami   - 显示当前用户信息
+  ls       - 列出文件
+  calc     - 简单计算器（用法：calc 2+2）
+  cat      - 让小猫打招呼
+  ${girlfriendState.name ? girlfriendState.name + '     - 启动"女朋友"语言环境' : ''}`;
+            },
+            clear: () => {
+                output.innerHTML = '';
+                return null;
+            },
+            echo: (args) => {
+                return args.join(' ') || '';
+            },
+            date: () => {
+                return new Date().toLocaleString('zh-CN');
+            },
+            about: () => {
+                return `<span class="success">交互式命令行网站</span>
+一个模拟终端界面的交互式网站
+粉蓝色主题配色
+支持多种命令操作`;
+            },
+            whoami: () => {
+                return '<span class="success">Haruki</span>';
+            },
+            ls: () => {
+                return `<span class="info">documents/</span>
+<span class="info">downloads/</span>
+<span class="info">pictures/</span>
+readme.txt
+config.json`;
+            },
+            calc: (args) => {
+                try {
+                    const expr = args.join('');
+                    const result = eval(expr.replace(/[^0-9+\-*/().]/g, ''));
+                    return `<span class="success">${result}</span>`;
+                } catch (e) {
+                    return `<span class="error">计算错误</span>`;
+                }
+            },
+            cat: () => {
+                return '<span class="success">にゃー！ ^_^</span>';
+            }
+        };
+
+        // 检查是否包含道歉关键词
+        function hasApologyKeywords(text) {
+            const keywords = ['我错了', '对不起', '爱', '非常抱歉', '不好意思', '不要'];
+            return keywords.some(keyword => text.includes(keyword));
+        }
+
+        // 处理命令
+        function handleCommand(command) {
+            // 如果已经有名字了，不再触发询问机制
+            if (girlfriendState.name) {
+                const [cmd, ...args] = command.split(' ');
+                
+                if (commands[cmd]) {
+                    const result = commands[cmd](args);
+                    return result;
+                } else {
+                    return `<span class="error">命令未找到: ${cmd}</span>`;
+                }
+            }
+
+            // 如果在等待确认
+            if (girlfriendState.waitingForConfirmation) {
+                if (command.toLowerCase() === 'y') {
+                    girlfriendState.name = girlfriendState.tempName;
+                    girlfriendState.angryLevel = 0;
+                    girlfriendState.isSilent = false;
+                    girlfriendState.exclamationCount = 0;
+                    girlfriendState.askTimerActive = false;
+                    commands[girlfriendState.name] = () => {
+                        openEditor();
+                        return null;
+                    };
+                    return `<span class="success">太好了！我就知道Haruki君记得我叫${girlfriendState.name}！ ❤️</span>
+<span class="info">现在你可以输入 "${girlfriendState.name}" 来启动编程环境了~</span>`;
+                } else if (command.toLowerCase() === 'n') {
+                    girlfriendState.waitingForConfirmation = false;
+                    const exclamation = '!'.repeat(girlfriendState.exclamationCount + 1);
+                    girlfriendState.exclamationCount++;
+                    setTimeout(() => {
+                        addOutput(`<span class="system">Haruki君真的不记得我叫什么了吗${exclamation}😠：</span>`);
+                        terminal.scrollTop = terminal.scrollHeight;
+                    }, 100);
+                    return null;
+                } else {
+                    return `<span class="system">请回答 y 或 n</span>`;
+                }
+            }
+
+            // 如果正在询问名字过程中收到输入（不是y/n）
+            if (girlfriendState.askTimerActive && !girlfriendState.waitingForConfirmation) {
+                girlfriendState.tempName = command;
+                girlfriendState.waitingForConfirmation = true;
+                return `<span class="system">你确定吗？【y/n】</span>`;
+            }
+
+            // 检查用户是否主动询问名字
+            if (checkAskingName(command)) {
+                startPeriodicAsk();
+                const exclamation = '!'.repeat(girlfriendState.exclamationCount + 1);
+                girlfriendState.exclamationCount++;
+                return `<span class="system">Haruki君真的不记得我叫什么了吗${exclamation}😠：</span>`;
+            }
+
+            // 如果女朋友在沉默中
+            if (girlfriendState.isSilent) {
+                if (hasApologyKeywords(command)) {
+                    girlfriendState.isSilent = false;
+                    girlfriendState.angryLevel = 4; // 回到第5级回复
+                    return `<span class="system">哼...看在你这么诚恳的份上...</span>`;
+                }
+                return null;
+            }
+
+            const [cmd, ...args] = command.split(' ');
+
+            // 检查是否是已知命令
+            if (commands[cmd]) {
+                const result = commands[cmd](args);
+                girlfriendState.angryLevel = 0; // 重置生气等级
+                return result;
+            } else {
+                // 未知命令，触发生气机制
+                if (girlfriendState.angryLevel < 5) {
+                    const response = angryResponses[girlfriendState.angryLevel];
+                    girlfriendState.angryLevel++;
+                    
+                    if (girlfriendState.angryLevel === 5) {
+                        girlfriendState.isSilent = true;
+                    }
+                    
+                    return `<span class="system">${response}</span>`;
+                }
+                return null;
+            }
+        }
+
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                // 小猫打字动画
+                canvas.classList.add('cat-typing');
+                setTimeout(() => canvas.classList.remove('cat-typing'), 900);
+
+                const command = input.value.trim();
+                
+                if (command) {
+                    addOutput(`<span class="prompt">user@terminal:~$ </span><span class="user-input">${command}</span>`);
+                    
+                    const result = handleCommand(command);
+                    if (result !== null) {
+                        addOutput(result);
+                    }
+                }
+                
+                input.value = '';
+                terminal.scrollTop = terminal.scrollHeight;
+            }
+        });
+
+        function addOutput(text) {
+            const line = document.createElement('div');
+            line.className = 'output-line';
+            line.innerHTML = text;
+            output.appendChild(line);
+        }
+
+        input.focus();
+        document.querySelector('.terminal-window').addEventListener('click', () => input.focus());
+
+        // 窗口拖动功能
+        let isDragging = false;
+        let currentX, currentY, initialX, initialY;
+        const terminalWindow = document.getElementById('terminalWindow');
+        const windowHeader = document.getElementById('windowHeader');
+
+        windowHeader.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            initialX = e.clientX - terminalWindow.offsetLeft;
+            initialY = e.clientY - terminalWindow.offsetTop;
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                e.preventDefault();
+                currentX = e.clientX - initialX;
+                currentY = e.clientY - initialY;
+                terminalWindow.style.left = currentX + 'px';
+                terminalWindow.style.top = currentY + 'px';
+                terminalWindow.style.position = 'absolute';
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+    </script>
+</body>
+</html>
