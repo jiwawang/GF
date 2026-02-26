@@ -145,6 +145,7 @@
     .result.show{display:block}
     .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
     .cards article{border:1px solid rgba(231,193,121,.44);border-radius:11px;padding:10px;background:linear-gradient(180deg,#2a173f,#1a1129)}
+    .card-face{width:100%;aspect-ratio:3/5;object-fit:cover;border-radius:9px;border:1px solid rgba(255,255,255,.14);margin:8px 0 6px;box-shadow:0 8px 16px rgba(0,0,0,.35)}
     .tag{display:inline-block;padding:2px 8px;border:1px solid rgba(255,255,255,.2);border-radius:999px;color:#e9ddfb;font-size:.8rem}
     .cards h3{margin:.45rem 0 .35rem;color:var(--gold)}
     .summary{margin-top:8px;border-top:1px dashed rgba(231,193,121,.4);padding-top:8px;line-height:1.72;color:#eee4ff}
@@ -234,28 +235,28 @@
 
   <script>
     const deckData=[
-      {name:"愚者",up:"新的旅程开启，适合勇敢尝试",rev:"冲动冒进，先补齐信息"},
-      {name:"魔术师",up:"资源齐备，执行会出结果",rev:"分心消耗，行动力打折"},
-      {name:"女祭司",up:"直觉很准，先观察再行动",rev:"想太多导致犹豫"},
-      {name:"女皇",up:"稳步增长，适合长期布局",rev:"过度舒适，节奏放缓"},
-      {name:"皇帝",up:"建立秩序，以系统取胜",rev:"控制过强导致僵化"},
-      {name:"教皇",up:"借助导师体系加速成长",rev:"被旧框架束缚"},
-      {name:"恋人",up:"选择与价值一致",rev:"优柔寡断，内耗增加"},
-      {name:"战车",up:"推进力强，适合冲刺",rev:"急躁导致偏航"},
-      {name:"力量",up:"稳定心态，柔性掌控",rev:"焦虑影响判断"},
-      {name:"隐者",up:"沉淀思考，独立判断",rev:"封闭过头错失反馈"},
-      {name:"命运之轮",up:"转机出现，抓住窗口",rev:"波动增大，先控风险"},
-      {name:"正义",up:"理性评估，按规则行动",rev:"信息偏差导致误判"},
-      {name:"倒吊人",up:"换角度会找到答案",rev:"停滞太久需主动破局"},
-      {name:"死神",up:"旧阶段结束，利于重启",rev:"抗拒变化拖慢进展"},
-      {name:"节制",up:"整合资源，稳中求进",rev:"节奏失衡效率下降"},
-      {name:"恶魔",up:"欲望驱动强，警惕执念",rev:"摆脱依赖重获主动"},
-      {name:"高塔",up:"突发重构，打破旧模式",rev:"隐患已久，尽快修复"},
-      {name:"星星",up:"愿景清晰，值得坚持",rev:"理想化，落地不足"},
-      {name:"月亮",up:"不确定中藏线索",rev:"迷雾散去，看清风险"},
-      {name:"太阳",up:"曝光与回报同步提升",rev:"过度乐观忽视细节"},
-      {name:"审判",up:"复盘唤醒第二机会",rev:"犹豫不决错过窗口"},
-      {name:"世界",up:"阶段圆满准备升级",rev:"收尾不足功亏一篑"}
+      {name:"愚者",img:"assets/cards/RWS_Tarot_00_Fool.jpg",up:"新的旅程开启，适合勇敢尝试",rev:"冲动冒进，先补齐信息"},
+      {name:"魔术师",img:"assets/cards/RWS_Tarot_01_Magician.jpg",up:"资源齐备，执行会出结果",rev:"分心消耗，行动力打折"},
+      {name:"女祭司",img:"assets/cards/RWS_Tarot_02_High_Priestess.jpg",up:"直觉很准，先观察再行动",rev:"想太多导致犹豫"},
+      {name:"女皇",img:"assets/cards/RWS_Tarot_03_Empress.jpg",up:"稳步增长，适合长期布局",rev:"过度舒适，节奏放缓"},
+      {name:"皇帝",img:"assets/cards/RWS_Tarot_04_Emperor.jpg",up:"建立秩序，以系统取胜",rev:"控制过强导致僵化"},
+      {name:"教皇",img:"assets/cards/RWS_Tarot_05_Hierophant.jpg",up:"借助导师体系加速成长",rev:"被旧框架束缚"},
+      {name:"恋人",img:"assets/cards/RWS_Tarot_06_Lovers.jpg",up:"选择与价值一致",rev:"优柔寡断，内耗增加"},
+      {name:"战车",img:"assets/cards/RWS_Tarot_07_Chariot.jpg",up:"推进力强，适合冲刺",rev:"急躁导致偏航"},
+      {name:"力量",img:"assets/cards/RWS_Tarot_08_Strength.jpg",up:"稳定心态，柔性掌控",rev:"焦虑影响判断"},
+      {name:"隐者",img:"assets/cards/RWS_Tarot_09_Hermit.jpg",up:"沉淀思考，独立判断",rev:"封闭过头错失反馈"},
+      {name:"命运之轮",img:"assets/cards/RWS_Tarot_10_Wheel_of_Fortune.jpg",up:"转机出现，抓住窗口",rev:"波动增大，先控风险"},
+      {name:"正义",img:"assets/cards/RWS_Tarot_11_Justice.jpg",up:"理性评估，按规则行动",rev:"信息偏差导致误判"},
+      {name:"倒吊人",img:"assets/cards/RWS_Tarot_12_Hanged_Man.jpg",up:"换角度会找到答案",rev:"停滞太久需主动破局"},
+      {name:"死神",img:"assets/cards/RWS_Tarot_13_Death.jpg",up:"旧阶段结束，利于重启",rev:"抗拒变化拖慢进展"},
+      {name:"节制",img:"assets/cards/RWS_Tarot_14_Temperance.jpg",up:"整合资源，稳中求进",rev:"节奏失衡效率下降"},
+      {name:"恶魔",img:"assets/cards/RWS_Tarot_15_Devil.jpg",up:"欲望驱动强，警惕执念",rev:"摆脱依赖重获主动"},
+      {name:"高塔",img:"assets/cards/RWS_Tarot_16_Tower.jpg",up:"突发重构，打破旧模式",rev:"隐患已久，尽快修复"},
+      {name:"星星",img:"assets/cards/RWS_Tarot_17_Star.jpg",up:"愿景清晰，值得坚持",rev:"理想化，落地不足"},
+      {name:"月亮",img:"assets/cards/RWS_Tarot_18_Moon.jpg",up:"不确定中藏线索",rev:"迷雾散去，看清风险"},
+      {name:"太阳",img:"assets/cards/RWS_Tarot_19_Sun.jpg",up:"曝光与回报同步提升",rev:"过度乐观忽视细节"},
+      {name:"审判",img:"assets/cards/RWS_Tarot_20_Judgement.jpg",up:"复盘唤醒第二机会",rev:"犹豫不决错过窗口"},
+      {name:"世界",img:"assets/cards/RWS_Tarot_21_World.jpg",up:"阶段圆满准备升级",rev:"收尾不足功亏一篑"}
     ];
 
     const spreads={
@@ -339,6 +340,7 @@
       $("cards").innerHTML=cards.map((c,i)=>`
         <article>
           <span class="tag">${labels[i]}</span>
+          <img class="card-face" src="${c.img}" alt="${c.name}" loading="lazy" />
           <h3>${c.name} · ${c.ori}</h3>
           <p>${c.meaning}</p>
         </article>
