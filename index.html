@@ -3,224 +3,268 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>月影塔罗店 · 动态占卜</title>
+  <title>月影塔罗店</title>
   <style>
-    :root {
-      --gold:#e8c57a;
-      --ink:#f7f1df;
-      --muted:#cdbfe0;
-      --line:rgba(232,197,122,.45);
-      --panel:rgba(18,10,28,.65);
-      --ok:#8ff2d0;
+    :root{
+      --gold:#e7c179;
+      --ink:#f6f0df;
+      --muted:#cdbde2;
+      --line:rgba(231,193,121,.42);
+      --panel:rgba(20,12,31,.62);
     }
     *{box-sizing:border-box}
     body{
-      margin:0;min-height:100vh;color:var(--ink);
+      margin:0;min-height:100vh;overflow:hidden;color:var(--ink);
       font-family:"Noto Serif SC","Microsoft YaHei",serif;
-      background:#140d22;
-      overflow-x:hidden;
+      background:#130b20;
     }
 
-    .bg-photo{
-      position:fixed;inset:0;z-index:0;
+    .bg{
+      position:fixed;inset:-3%;
       background:
-        radial-gradient(circle at 20% 70%, rgba(209,145,79,.32), transparent 35%),
-        radial-gradient(circle at 80% 25%, rgba(95,60,170,.35), transparent 38%),
-        linear-gradient(170deg,#221236,#140d22 65%);
-      filter: blur(10px) saturate(1.1);
-      transform:scale(1.05);
+        radial-gradient(circle at 18% 72%, rgba(208,143,74,.32), transparent 34%),
+        radial-gradient(circle at 84% 18%, rgba(106,73,178,.34), transparent 38%),
+        radial-gradient(circle at 50% 30%, rgba(255,255,255,.08), transparent 42%),
+        linear-gradient(170deg, #27143a 0%, #130b20 68%);
+      filter: blur(13px) saturate(1.1);
+      transform:scale(1.06);
+      animation:bgBreath 9s ease-in-out infinite alternate;
     }
-    .bg-overlay{
-      position:fixed;inset:0;z-index:1;pointer-events:none;
-      background:rgba(10,6,18,.38);
+    @keyframes bgBreath{from{transform:scale(1.05)}to{transform:scale(1.09)}}
+
+    .mist{
+      position:fixed;inset:0;pointer-events:none;
+      background:radial-gradient(circle at 50% 80%, rgba(255,255,255,.08), transparent 55%);
+      mix-blend-mode:screen;
+      animation:mistMove 14s ease-in-out infinite alternate;
     }
+    @keyframes mistMove{from{transform:translateY(8px)}to{transform:translateY(-12px)}}
+
     .stars::before,.stars::after{
-      content:"";position:fixed;inset:0;z-index:2;pointer-events:none;
-      background-image:radial-gradient(circle,rgba(255,255,255,.72) 1px,transparent 1.2px);
-      background-size:4px 4px;opacity:.09;animation:drift 28s linear infinite;
+      content:"";position:fixed;inset:0;pointer-events:none;
+      background-image:radial-gradient(circle, rgba(255,255,255,.78) 1px, transparent 1.2px);
+      background-size:4px 4px;opacity:.08;
+      animation:drift 34s linear infinite;
     }
-    .stars::after{opacity:.06;animation-duration:40s;transform:scale(1.28)}
-    @keyframes drift{from{transform:translateY(0)}to{transform:translateY(-28px)}}
+    .stars::after{opacity:.05;transform:scale(1.3);animation-duration:50s}
+    @keyframes drift{from{transform:translateY(0)}to{transform:translateY(-32px)}}
 
-    .wrap{position:relative;z-index:3;width:min(1100px,94vw);margin:24px auto 40px}
-    .hero{
-      border:1px solid var(--line);border-radius:20px;padding:20px;
-      background:linear-gradient(180deg,var(--panel),rgba(19,10,29,.45));
-      backdrop-filter:blur(6px);
-      box-shadow:0 16px 40px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.04);
+    .shell{position:relative;z-index:2;width:min(1150px,95vw);height:100vh;margin:0 auto;padding:20px 12px 24px}
+
+    .topbar{
+      border:1px solid var(--line);border-radius:14px;padding:10px 12px;
+      background:linear-gradient(180deg,var(--panel),rgba(17,10,27,.42));
+      backdrop-filter:blur(7px);
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      box-shadow:0 8px 28px rgba(0,0,0,.35);
     }
-    h1{margin:0 0 8px;color:var(--gold);font-size:clamp(1.5rem,2.7vw,2.2rem);letter-spacing:.06em}
-    .sub{margin:0;color:var(--muted);line-height:1.7}
-
-    .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
-    button,.btn{
-      border:1px solid rgba(232,197,122,.55);border-radius:10px;
-      background:linear-gradient(180deg,rgba(232,197,122,.23),rgba(232,197,122,.08));
-      color:#fff;padding:10px 14px;cursor:pointer;
+    .brand{color:var(--gold);font-size:1.06rem;letter-spacing:.08em}
+    .top-actions{display:flex;gap:8px;flex-wrap:wrap}
+    button{
+      border:1px solid rgba(231,193,121,.56);border-radius:10px;padding:8px 12px;
+      background:linear-gradient(180deg, rgba(231,193,121,.24), rgba(231,193,121,.09));
+      color:#fff;cursor:pointer;font:inherit;
     }
 
-    .panel{margin-top:14px;border:1px solid rgba(232,197,122,.35);border-radius:14px;padding:14px;background:rgba(255,255,255,.05)}
-    .hidden{display:none}
+    .stage{
+      position:relative;height:calc(100% - 70px);margin-top:14px;border:1px solid rgba(231,193,121,.3);
+      border-radius:18px;background:linear-gradient(180deg,rgba(18,10,29,.45),rgba(13,8,20,.32));
+      backdrop-filter: blur(4px);
+      overflow:hidden;
+    }
 
-    .table-zone{margin-top:14px}
-    .deck-wrap{position:relative;height:330px;display:flex;align-items:center;justify-content:center}
+    .hint{
+      position:absolute;left:50%;top:18px;transform:translateX(-50%);
+      background:rgba(15,9,24,.72);border:1px solid rgba(255,255,255,.16);border-radius:999px;
+      padding:6px 12px;color:#ddd1ef;font-size:.9rem;z-index:8;
+    }
 
-    .deck, .picked-row article{
-      width:160px;height:240px;border-radius:12px;
-      border:1px solid rgba(232,197,122,.48);
+    /* floating ambient cards */
+    .ambient{position:absolute;inset:0;pointer-events:none;z-index:1}
+    .ambient .a-card{
+      position:absolute;width:116px;height:178px;border-radius:11px;
+      border:1px solid rgba(231,193,121,.45);
       background:
-        radial-gradient(circle at 50% 28%, rgba(232,197,122,.25), transparent 34%),
-        linear-gradient(165deg,#311c4a,#1a1129);
-      box-shadow:0 12px 26px rgba(0,0,0,.38), inset 0 0 0 1px rgba(255,255,255,.05);
-      position:relative;
-      user-select:none;
+        radial-gradient(circle at 50% 24%, rgba(231,193,121,.27), transparent 36%),
+        linear-gradient(165deg,#321d4a,#1a1128);
+      box-shadow:0 10px 22px rgba(0,0,0,.4), inset 0 0 0 1px rgba(255,255,255,.05);
+      opacity:.62;
+      animation:float var(--t) ease-in-out infinite alternate;
+      transform:translate3d(0,0,0) rotate(var(--r));
+      filter:drop-shadow(0 0 6px rgba(244,202,131,.2));
+    }
+    .ambient .a-card::after{content:"✦";position:absolute;inset:0;display:grid;place-items:center;color:#f4e5c2;opacity:.6}
+    @keyframes float{
+      0%{transform:translateY(0) translateX(0) rotate(var(--r))}
+      50%{transform:translateY(-16px) translateX(8px) rotate(calc(var(--r) + 4deg))}
+      100%{transform:translateY(10px) translateX(-6px) rotate(calc(var(--r) - 3deg))}
     }
 
-    .deck::before{
-      content:"✦ 月影塔罗 ✦";position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);
-      text-align:center;color:#f8e9c6;letter-spacing:.08em
+    .deck-zone{position:absolute;inset:0;display:grid;place-items:center;z-index:3}
+    .deck-stack{position:relative;width:170px;height:250px}
+    .deck-card{
+      position:absolute;inset:0;border-radius:12px;border:1px solid rgba(231,193,121,.55);
+      background:linear-gradient(165deg,#331f4d,#1a1029);
+      box-shadow:0 14px 30px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.05);
     }
+    .deck-card:nth-child(1){transform:translate(-8px,8px) rotate(-5deg);opacity:.8}
+    .deck-card:nth-child(2){transform:translate(8px,8px) rotate(6deg);opacity:.8}
+    .deck-card:nth-child(3){display:grid;place-items:center;font-size:1.02rem;letter-spacing:.08em}
 
-    .shuffle{animation:shuffle 1s ease-in-out infinite alternate}
-    @keyframes shuffle{
-      0%{transform:translateX(-16px) rotate(-7deg)}
-      50%{transform:translateX(16px) rotate(7deg)}
-      100%{transform:translateX(-10px) rotate(-5deg)}
-    }
+    .shuffling .deck-card:nth-child(1){animation:slideL .62s ease-in-out infinite alternate}
+    .shuffling .deck-card:nth-child(2){animation:slideR .62s ease-in-out infinite alternate}
+    .shuffling .deck-card:nth-child(3){animation:deckPulse .8s ease-in-out infinite alternate}
+    @keyframes slideL{from{transform:translate(-14px,10px) rotate(-10deg)}to{transform:translate(-1px,4px) rotate(-1deg)}}
+    @keyframes slideR{from{transform:translate(12px,10px) rotate(11deg)}to{transform:translate(1px,4px) rotate(1deg)}}
+    @keyframes deckPulse{from{transform:scale(1)}to{transform:scale(1.04)}}
 
-    .fan{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:10px}
-    .fan .choice{
-      width:150px;height:220px;border-radius:12px;cursor:pointer;
+    .fan{position:absolute;left:50%;top:53%;transform:translate(-50%,-50%);display:flex;gap:12px;z-index:6}
+    .fan.hidden{display:none}
+    .choice{
+      width:150px;height:225px;border-radius:12px;cursor:pointer;
+      border:1px solid rgba(231,193,121,.56);
+      background:
+        radial-gradient(circle at 50% 24%, rgba(231,193,121,.27), transparent 34%),
+        linear-gradient(165deg,#311d49,#1a1028);
+      box-shadow:0 12px 24px rgba(0,0,0,.42);
       transform:rotate(var(--r)) translateY(var(--y));
-      transition:.2s transform,.2s filter;
-      filter:brightness(.95);
+      transition:.2s transform,.2s opacity,.2s filter;
+      display:grid;place-items:center;color:#f8e8c4;letter-spacing:.06em;
     }
-    .fan .choice:hover{transform:rotate(var(--r)) translateY(calc(var(--y) - 8px));filter:brightness(1.08)}
+    .choice:hover{transform:rotate(var(--r)) translateY(calc(var(--y) - 10px));filter:brightness(1.1)}
+    .choice.picked{opacity:.35;pointer-events:none}
 
-    .picked-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:12px}
-    .picked-row article{width:100%;height:auto;min-height:270px;padding:12px;background:linear-gradient(180deg,#2a163f,#1a1029)}
-    .tag{display:inline-block;padding:2px 8px;border:1px solid rgba(255,255,255,.2);border-radius:999px;color:#e6dcf7;font-size:.82rem}
-    .picked-row h3{margin:.5rem 0 .4rem;color:var(--gold)}
-
-    .summary{margin-top:12px;border-top:1px dashed rgba(232,197,122,.4);padding-top:10px;line-height:1.8}
+    .result{
+      position:absolute;left:50%;bottom:18px;transform:translateX(-50%);
+      width:min(1020px,94%);z-index:7;
+      border:1px solid var(--line);border-radius:14px;padding:12px;
+      background:linear-gradient(180deg,rgba(24,14,36,.9),rgba(14,9,22,.88));
+      backdrop-filter:blur(7px);
+      display:none;
+    }
+    .result.show{display:block}
+    .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+    .cards article{border:1px solid rgba(231,193,121,.44);border-radius:11px;padding:10px;background:linear-gradient(180deg,#2a173f,#1a1129)}
+    .tag{display:inline-block;padding:2px 8px;border:1px solid rgba(255,255,255,.2);border-radius:999px;color:#e9ddfb;font-size:.8rem}
+    .cards h3{margin:.45rem 0 .35rem;color:var(--gold)}
+    .summary{margin-top:8px;border-top:1px dashed rgba(231,193,121,.4);padding-top:8px;line-height:1.72;color:#eee4ff}
 
     .modal{
-      position:fixed;inset:0;z-index:30;display:none;align-items:center;justify-content:center;
-      background:rgba(8,5,13,.6);backdrop-filter:blur(4px);
+      position:fixed;inset:0;z-index:20;display:none;align-items:center;justify-content:center;
+      background:rgba(7,4,12,.62);backdrop-filter:blur(5px);
     }
     .modal.show{display:flex}
     .dialog{
-      width:min(560px,92vw);background:linear-gradient(180deg,rgba(35,21,52,.95),rgba(19,10,29,.95));
-      border:1px solid var(--line);border-radius:14px;padding:16px;
+      width:min(560px,92vw);border:1px solid var(--line);border-radius:14px;padding:16px;
+      background:linear-gradient(180deg,rgba(38,23,57,.96),rgba(18,10,28,.96));
       box-shadow:0 20px 48px rgba(0,0,0,.5);
     }
     .dialog h2{margin:0 0 8px;color:var(--gold)}
-    .dialog label{display:block;margin-top:8px;color:var(--muted)}
+    .dialog label{display:block;color:var(--muted);margin-top:8px}
     .dialog input,.dialog textarea,.dialog select{
       width:100%;margin-top:6px;padding:10px;border-radius:10px;
-      border:1px solid rgba(255,255,255,.2);background:rgba(12,7,18,.8);color:#fff;
-      font:inherit;
+      border:1px solid rgba(255,255,255,.2);background:rgba(11,7,18,.84);color:#fff;font:inherit;
     }
+    .dialog textarea{min-height:92px;resize:vertical}
+    .dialog .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 
-    .dialog .actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
-    .hint{font-size:.9rem;color:#ccbfe0}
-
-    .footer{text-align:center;color:#b8aacb;margin-top:14px;font-size:.86rem}
   </style>
 </head>
 <body>
-  <div class="bg-photo"></div>
-  <div class="bg-overlay"></div>
+  <div class="bg"></div>
+  <div class="mist"></div>
   <div class="stars"></div>
 
   <audio id="bgm" loop preload="none" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_a8cd79be19.mp3?filename=relaxing-meditation-ambient-11157.mp3"></audio>
 
-  <div class="wrap">
-    <section class="hero">
-      <h1>🔮 月影塔罗店</h1>
-      <p class="sub">模糊塔罗店背景 · 洗牌动画 · 自主抽牌 · 弹窗问询流程</p>
-
-      <div class="toolbar">
-        <button id="openFlow">开始占卜</button>
+  <div class="shell">
+    <div class="topbar">
+      <div class="brand">✦ 月影塔罗店 ✦</div>
+      <div class="top-actions">
         <button id="musicBtn">开启背景音乐</button>
-        <span class="hint">浏览器限制自动播放，需点击一次“开启背景音乐”。</span>
+        <button id="restartBtn">重新开始</button>
+      </div>
+    </div>
+
+    <section class="stage" id="stage">
+      <div class="hint" id="hint">静心 3 秒，再点击卡牌进行抽取</div>
+
+      <div class="ambient" id="ambient"></div>
+
+      <div class="deck-zone">
+        <div class="deck-stack" id="deckStack">
+          <div class="deck-card"></div>
+          <div class="deck-card"></div>
+          <div class="deck-card">月影塔罗</div>
+        </div>
       </div>
 
-      <div class="panel table-zone">
-        <div id="stageText">点击“开始占卜”，女祭司会先询问你的名字与问题。</div>
+      <div class="fan hidden" id="fan"></div>
 
-        <div class="deck-wrap" id="deckWrap">
-          <div class="deck" id="deck"></div>
-        </div>
-
-        <div class="fan hidden" id="fan"></div>
-
-        <div class="picked-row" id="pickedRow"></div>
+      <div class="result" id="result">
+        <div id="qText" style="margin-bottom:8px;color:#d8cdeb"></div>
+        <div class="cards" id="cards"></div>
         <div class="summary" id="summary"></div>
       </div>
-
-      <p class="footer">* 仅供灵感与反思，不替代投资/医疗/法律等专业建议。</p>
     </section>
   </div>
 
-  <div class="modal" id="flowModal">
+  <div class="modal" id="modal">
     <div class="dialog">
       <h2>月影问询</h2>
-      <div id="stepName">
+      <div id="step1">
         <label>你的名字</label>
         <input id="nameInput" placeholder="例如：甜甜" />
-        <div class="actions"><button id="toQuestion">下一步</button></div>
+        <div class="actions"><button id="toStep2">下一步</button></div>
       </div>
-
-      <div id="stepQuestion" class="hidden">
-        <label>你希望占卜的问题</label>
-        <textarea id="questionInput" placeholder="例如：我今年科研与财富增长的关键机会是什么？"></textarea>
+      <div id="step2" style="display:none">
+        <label>你想占卜的问题</label>
+        <textarea id="questionInput" placeholder="例如：接下来三个月我在科研与财富上的关键机会是什么？"></textarea>
         <label>牌阵</label>
-        <select id="spreadSelect">
-          <option value="past-present-future">传统三牌阵（过去 / 现在 / 未来）</option>
-          <option value="situation-action-outcome">情境三牌阵（现状 / 建议 / 结果）</option>
+        <select id="spreadInput">
+          <option value="past-present-future">过去 / 现在 / 未来</option>
+          <option value="situation-action-outcome">现状 / 建议 / 结果</option>
         </select>
         <div class="actions">
-          <button id="startShuffle">开始洗牌</button>
-          <button id="cancelFlow">取消</button>
+          <button id="startBtn">开始占卜</button>
         </div>
       </div>
     </div>
   </div>
 
   <script>
-    const deckData = [
-      {name:"愚者", up:"新旅程开启，适合勇敢尝试", rev:"冲动冒进，先补齐信息"},
-      {name:"魔术师", up:"资源齐备，执行会出结果", rev:"分心消耗，行动力打折"},
-      {name:"女祭司", up:"直觉很准，先观察再行动", rev:"想太多导致犹豫"},
-      {name:"女皇", up:"稳步增长，利于长期布局", rev:"舒适过度，节奏放缓"},
-      {name:"皇帝", up:"建立秩序，以系统取胜", rev:"控制过强导致僵化"},
-      {name:"教皇", up:"借助导师体系加速学习", rev:"被旧框架束缚"},
-      {name:"恋人", up:"选择与价值一致", rev:"优柔寡断，内耗增加"},
-      {name:"战车", up:"推进力强，适合冲刺", rev:"急躁偏航"},
-      {name:"力量", up:"稳定心态，柔性掌控", rev:"焦虑影响判断"},
-      {name:"隐者", up:"沉淀思考，独立判断", rev:"封闭过头，错失反馈"},
-      {name:"命运之轮", up:"转机出现，抓住窗口", rev:"波动增大，先控风险"},
-      {name:"正义", up:"按规则理性决策", rev:"信息偏差导致误判"},
-      {name:"倒吊人", up:"换角度会找到答案", rev:"停滞太久需主动破局"},
-      {name:"死神", up:"旧阶段结束，利于重启", rev:"抗拒变化拖慢进展"},
-      {name:"节制", up:"整合资源，稳中求进", rev:"节奏失衡，效率下降"},
-      {name:"恶魔", up:"欲望驱动强，警惕执念", rev:"摆脱依赖重获主动"},
-      {name:"高塔", up:"突发重构，打破旧模式", rev:"隐患拖延，尽快修复"},
-      {name:"星星", up:"愿景清晰，值得坚持", rev:"理想化，落地不足"},
-      {name:"月亮", up:"不确定中藏线索", rev:"迷雾散去，看清风险"},
-      {name:"太阳", up:"曝光与回报同步提升", rev:"过度乐观忽视细节"},
-      {name:"审判", up:"复盘唤醒第二机会", rev:"犹豫不决错过窗口"},
-      {name:"世界", up:"阶段圆满准备升级", rev:"收尾不足功亏一篑"}
+    const deckData=[
+      {name:"愚者",up:"新的旅程开启，适合勇敢尝试",rev:"冲动冒进，先补齐信息"},
+      {name:"魔术师",up:"资源齐备，执行会出结果",rev:"分心消耗，行动力打折"},
+      {name:"女祭司",up:"直觉很准，先观察再行动",rev:"想太多导致犹豫"},
+      {name:"女皇",up:"稳步增长，适合长期布局",rev:"过度舒适，节奏放缓"},
+      {name:"皇帝",up:"建立秩序，以系统取胜",rev:"控制过强导致僵化"},
+      {name:"教皇",up:"借助导师体系加速成长",rev:"被旧框架束缚"},
+      {name:"恋人",up:"选择与价值一致",rev:"优柔寡断，内耗增加"},
+      {name:"战车",up:"推进力强，适合冲刺",rev:"急躁导致偏航"},
+      {name:"力量",up:"稳定心态，柔性掌控",rev:"焦虑影响判断"},
+      {name:"隐者",up:"沉淀思考，独立判断",rev:"封闭过头错失反馈"},
+      {name:"命运之轮",up:"转机出现，抓住窗口",rev:"波动增大，先控风险"},
+      {name:"正义",up:"理性评估，按规则行动",rev:"信息偏差导致误判"},
+      {name:"倒吊人",up:"换角度会找到答案",rev:"停滞太久需主动破局"},
+      {name:"死神",up:"旧阶段结束，利于重启",rev:"抗拒变化拖慢进展"},
+      {name:"节制",up:"整合资源，稳中求进",rev:"节奏失衡效率下降"},
+      {name:"恶魔",up:"欲望驱动强，警惕执念",rev:"摆脱依赖重获主动"},
+      {name:"高塔",up:"突发重构，打破旧模式",rev:"隐患已久，尽快修复"},
+      {name:"星星",up:"愿景清晰，值得坚持",rev:"理想化，落地不足"},
+      {name:"月亮",up:"不确定中藏线索",rev:"迷雾散去，看清风险"},
+      {name:"太阳",up:"曝光与回报同步提升",rev:"过度乐观忽视细节"},
+      {name:"审判",up:"复盘唤醒第二机会",rev:"犹豫不决错过窗口"},
+      {name:"世界",up:"阶段圆满准备升级",rev:"收尾不足功亏一篑"}
     ];
 
-    const spreadMap = {
-      "past-present-future": ["过去", "现在", "未来"],
-      "situation-action-outcome": ["现状", "建议行动", "结果趋势"]
+    const spreads={
+      "past-present-future":["过去","现在","未来"],
+      "situation-action-outcome":["现状","建议行动","结果趋势"]
     };
 
-    const state = {name:"", question:"", spread:"past-present-future", selected:[]};
-    const $ = (id)=>document.getElementById(id);
+    const state={name:"",question:"",spread:"past-present-future",picked:[]};
+    const $=(id)=>document.getElementById(id);
 
     function shuffle(arr){
       const a=[...arr];
@@ -231,53 +275,68 @@
       return a;
     }
 
-    function openModal(){ $("flowModal").classList.add("show"); }
-    function closeModal(){ $("flowModal").classList.remove("show"); }
-
-    function startShuffling(){
-      $("deck").classList.add("shuffle");
-      $("stageText").textContent = `${state.name}，正在洗牌...请默念你的问题。`;
-      $("fan").classList.add("hidden");
-      $("pickedRow").innerHTML = "";
-      $("summary").innerHTML = "";
-
-      setTimeout(() => {
-        $("deck").classList.remove("shuffle");
-        showFan();
-      }, 2600);
+    function buildAmbient(){
+      const box=$("ambient");
+      box.innerHTML="";
+      for(let i=0;i<9;i++){
+        const d=document.createElement('div');
+        d.className='a-card';
+        d.style.left=(8 + Math.random()*82)+"%";
+        d.style.top=(8 + Math.random()*72)+"%";
+        d.style.setProperty('--r', ((Math.random()*26)-13)+'deg');
+        d.style.setProperty('--t', (4.8 + Math.random()*4.5)+'s');
+        d.style.animationDelay = (-Math.random()*6)+'s';
+        box.appendChild(d);
+      }
     }
 
-    function showFan(){
-      const cards = shuffle(deckData).slice(0, 7);
-      const fan = $("fan");
-      fan.innerHTML = cards.map((_,i)=>`<div class="choice deck" data-i="${i}" style="--r:${-18+i*6}deg;--y:${Math.abs(3-i)*2}px"></div>`).join("");
-      fan.classList.remove("hidden");
-      $("stageText").textContent = "请自主选择 3 张牌（点击牌背）";
+    function showModal(){ $("modal").classList.add('show'); }
+    function hideModal(){ $("modal").classList.remove('show'); }
 
-      state.selected = [];
-      [...fan.querySelectorAll('.choice')].forEach((el, idx)=>{
-        el.addEventListener('click', ()=>{
-          if(state.selected.length>=3 || el.dataset.locked) return;
-          el.dataset.locked='1';
-          el.style.opacity='.45';
-          state.selected.push(cards[idx]);
-          if(state.selected.length===3){
-            renderReading();
+    function startReading(){
+      const deck=$("deckStack");
+      deck.classList.add('shuffling');
+      $("hint").textContent=`${state.name}，正在洗牌...请专注你的问题`;
+      $("fan").classList.add('hidden');
+      $("result").classList.remove('show');
+      state.picked=[];
+
+      setTimeout(()=>{
+        deck.classList.remove('shuffling');
+        fanOut();
+      },2800);
+    }
+
+    function fanOut(){
+      const candidates=shuffle(deckData).slice(0,7);
+      const fan=$("fan");
+      fan.innerHTML=candidates.map((_,i)=>`<div class="choice" data-i="${i}" style="--r:${-18+i*6}deg;--y:${Math.abs(3-i)*2}px">月影</div>`).join('');
+      fan.classList.remove('hidden');
+      $("hint").textContent='请自主抽取 3 张牌';
+
+      fan.querySelectorAll('.choice').forEach((el)=>{
+        el.addEventListener('click',()=>{
+          if(el.classList.contains('picked') || state.picked.length>=3) return;
+          el.classList.add('picked');
+          const card=candidates[Number(el.dataset.i)];
+          state.picked.push(card);
+          if(state.picked.length===3){
             fan.classList.add('hidden');
+            reveal();
           }
-        });
-      });
+        })
+      })
     }
 
-    function renderReading(){
-      const labels = spreadMap[state.spread];
-      const picks = state.selected.map(c=>{
-        const rev = Math.random()<0.42;
-        return {...c, ori: rev?"逆位":"正位", meaning: rev?c.rev:c.up};
+    function reveal(){
+      const labels=spreads[state.spread];
+      const cards=state.picked.map(c=>{
+        const rev=Math.random()<0.42;
+        return {...c,ori:rev?'逆位':'正位',meaning:rev?c.rev:c.up};
       });
 
-      $("stageText").textContent = `${state.name} 的牌面已揭示`;
-      $("pickedRow").innerHTML = picks.map((c,i)=>`
+      $("qText").innerHTML=`<strong>${state.name}</strong> 的问题：${state.question}`;
+      $("cards").innerHTML=cards.map((c,i)=>`
         <article>
           <span class="tag">${labels[i]}</span>
           <h3>${c.name} · ${c.ori}</h3>
@@ -285,56 +344,61 @@
         </article>
       `).join('');
 
-      $("summary").innerHTML = `
-        <strong>问题：</strong>${state.question}<br><br>
+      $("summary").innerHTML=`
         <strong>综合解读：</strong><br>
-        ① ${labels[0]}位 <b>${picks[0].name}${picks[0].ori}</b>：先看过去策略是否仍有效。<br>
-        ② ${labels[1]}位 <b>${picks[1].name}${picks[1].ori}</b>：当前关键在执行动作与节奏。<br>
-        ③ ${labels[2]}位 <b>${picks[2].name}${picks[2].ori}</b>：未来趋势由你持续行动塑造。<br><br>
-        建议：把问题拆成“今天1件事 + 本周3件事”，让牌意落地。
+        ① ${labels[0]}位 <b>${cards[0].name}${cards[0].ori}</b>：先复盘你过去的策略。<br>
+        ② ${labels[1]}位 <b>${cards[1].name}${cards[1].ori}</b>：当下关键在执行节奏。<br>
+        ③ ${labels[2]}位 <b>${cards[2].name}${cards[2].ori}</b>：未来趋势可被你主动塑造。<br><br>
+        建议：把目标拆成“今天1件事 + 本周3件事”，让灵感变成结果。
       `;
+      $("result").classList.add('show');
+      $("hint").textContent='占卜完成，可点击“重新开始”再来一次';
     }
 
-    $("openFlow").addEventListener('click', ()=>{
-      $("stepName").classList.remove('hidden');
-      $("stepQuestion").classList.add('hidden');
-      openModal();
-    });
-
-    $("toQuestion").addEventListener('click', ()=>{
-      const n = $("nameInput").value.trim();
+    // flow
+    $("toStep2").addEventListener('click',()=>{
+      const n=$("nameInput").value.trim();
       if(!n) return;
-      state.name = n;
-      $("stepName").classList.add('hidden');
-      $("stepQuestion").classList.remove('hidden');
+      state.name=n;
+      $("step1").style.display='none';
+      $("step2").style.display='block';
       $("questionInput").focus();
     });
 
-    $("startShuffle").addEventListener('click', ()=>{
-      const q = $("questionInput").value.trim();
-      if(!q){ alert('请先输入问题'); return; }
-      state.question = q;
-      state.spread = $("spreadSelect").value;
-      closeModal();
-      startShuffling();
+    $("startBtn").addEventListener('click',()=>{
+      const q=$("questionInput").value.trim();
+      if(!q) return alert('请先输入问题');
+      state.question=q;
+      state.spread=$("spreadInput").value;
+      hideModal();
+      startReading();
     });
 
-    $("cancelFlow").addEventListener('click', closeModal);
-
-    $("musicBtn").addEventListener('click', async ()=>{
-      const bgm = $("bgm");
-      if(bgm.paused){
-        try{
-          await bgm.play();
-          $("musicBtn").textContent = '暂停背景音乐';
-        }catch(e){
-          alert('播放失败，请再点一次或检查浏览器音频权限');
-        }
+    $("musicBtn").addEventListener('click',async()=>{
+      const audio=$("bgm");
+      if(audio.paused){
+        try{await audio.play(); $("musicBtn").textContent='暂停背景音乐';}
+        catch{alert('浏览器拦截了自动播放，请再点一次。')}
       }else{
-        bgm.pause();
-        $("musicBtn").textContent = '开启背景音乐';
+        audio.pause();
+        $("musicBtn").textContent='开启背景音乐';
       }
     });
+
+    $("restartBtn").addEventListener('click',()=>{
+      state.picked=[];
+      $("fan").classList.add('hidden');
+      $("result").classList.remove('show');
+      $("step1").style.display='block';
+      $("step2").style.display='none';
+      $("nameInput").value='';
+      $("questionInput").value='';
+      $("hint").textContent='静心 3 秒，再点击卡牌进行抽取';
+      showModal();
+    });
+
+    buildAmbient();
+    showModal(); // 打开页面即弹窗
   </script>
 </body>
 </html>
