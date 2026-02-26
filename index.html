@@ -3,222 +3,191 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>月影塔罗馆 · Tarot Reading</title>
+  <title>月影塔罗店 · 传统占卜</title>
   <style>
     :root {
-      --bg1: #12071f;
-      --bg2: #2b1241;
-      --gold: #d8b26e;
-      --light: #f4e7c8;
-      --muted: #c8bdd6;
-      --card: rgba(255, 255, 255, 0.08);
-      --border: rgba(216, 178, 110, 0.45);
-      --ok: #7be0c4;
+      --bg:#0f0918;
+      --purple:#2a1740;
+      --gold:#e8c57a;
+      --ink:#f8f1df;
+      --muted:#ccbce0;
+      --line:rgba(232,197,122,.45);
+      --panel:rgba(22,12,34,.72);
+      --ok:#8ff2d0;
     }
-
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: "Noto Serif SC", "Microsoft YaHei", serif;
-      color: var(--light);
+    *{box-sizing:border-box}
+    body{
+      margin:0; min-height:100vh; color:var(--ink);
+      font-family:"Noto Serif SC","Microsoft YaHei",serif;
       background:
-        radial-gradient(circle at 20% 10%, rgba(109,70,162,.35), transparent 40%),
-        radial-gradient(circle at 80% 20%, rgba(241,196,15,.16), transparent 34%),
-        radial-gradient(circle at 50% 100%, rgba(34,99,140,.24), transparent 40%),
-        linear-gradient(160deg, var(--bg1), var(--bg2));
-      overflow-x: hidden;
+        radial-gradient(circle at 12% 10%,rgba(241,183,72,.18),transparent 35%),
+        radial-gradient(circle at 90% 15%,rgba(106,68,170,.25),transparent 40%),
+        linear-gradient(170deg,#120b1c, #1f1230 55%, #140b20);
+      overflow-x:hidden;
+    }
+    .shop-bg{
+      position:fixed; inset:0; pointer-events:none; opacity:.24;
+      background-image:
+        linear-gradient(to right, transparent 4%, rgba(255,255,255,.03) 4.2%, transparent 4.5%),
+        linear-gradient(to bottom, rgba(232,197,122,.14), transparent 30%),
+        radial-gradient(circle at 20% 65%, rgba(210,150,80,.25), transparent 36%),
+        radial-gradient(circle at 80% 70%, rgba(85,126,212,.19), transparent 35%);
+      filter:blur(1px);
+    }
+    .stars::before,.stars::after{
+      content:""; position:fixed; inset:0; pointer-events:none;
+      background-image:radial-gradient(circle,rgba(255,255,255,.72) 1px,transparent 1.2px);
+      background-size:4px 4px; opacity:.11; animation:drift 26s linear infinite;
+    }
+    .stars::after{opacity:.07; animation-duration:40s; transform:scale(1.25)}
+    @keyframes drift{from{transform:translateY(0)}to{transform:translateY(-26px)}}
+
+    .wrap{width:min(1050px,94vw); margin:28px auto 40px; position:relative; z-index:2}
+    .hero{
+      border:1px solid var(--line); border-radius:22px; padding:22px;
+      background:linear-gradient(180deg,var(--panel),rgba(18,10,28,.55));
+      backdrop-filter:blur(6px);
+      box-shadow:0 16px 38px rgba(0,0,0,.42), inset 0 0 0 1px rgba(255,255,255,.04);
     }
 
-    .stars::before, .stars::after {
-      content: "";
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      background-image: radial-gradient(circle, rgba(255,255,255,.65) 1px, transparent 1.2px);
-      background-size: 3px 3px;
-      opacity: .12;
-      animation: drift 22s linear infinite;
-    }
-    .stars::after { opacity: .08; animation-duration: 36s; transform: scale(1.3); }
-    @keyframes drift { from { transform: translateY(0); } to { transform: translateY(-30px);} }
+    h1{margin:0 0 6px; font-size:clamp(1.5rem,2.5vw,2.2rem); color:var(--gold); letter-spacing:.06em}
+    .sub{margin:0; color:var(--muted); line-height:1.75}
 
-    .wrap {
-      width: min(980px, 94vw);
-      margin: 30px auto 48px;
-      position: relative;
-      z-index: 2;
+    .panel{margin-top:16px; border:1px solid rgba(232,197,122,.34); background:rgba(255,255,255,.05); border-radius:14px; padding:16px}
+    label{display:block; margin-bottom:8px; color:var(--muted)}
+    input,textarea,select,button{
+      width:100%; border:1px solid rgba(255,255,255,.22); border-radius:10px;
+      background:rgba(14,9,22,.76); color:#fff; font:inherit; padding:11px 13px;
     }
+    textarea{min-height:90px; resize:vertical}
+    button{
+      cursor:pointer; border-color:rgba(232,197,122,.56);
+      background:linear-gradient(180deg,rgba(232,197,122,.21),rgba(232,197,122,.08));
+      transition:.2s transform,.2s box-shadow;
+    }
+    button:hover{transform:translateY(-1px); box-shadow:0 8px 20px rgba(0,0,0,.35)}
+    .row{display:grid; gap:12px; grid-template-columns:1fr}
+    @media(min-width:760px){.row.two{grid-template-columns:1fr 1fr}}
 
-    .hero {
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 24px;
-      background: linear-gradient(180deg, rgba(20,12,35,.7), rgba(22,10,32,.45));
-      backdrop-filter: blur(5px);
-      box-shadow: 0 14px 40px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.05);
-    }
+    .hidden{display:none}
+    .status{margin-top:8px; color:var(--ok); font-size:.95rem}
 
-    h1 {
-      margin: 0 0 8px;
-      font-size: clamp(1.6rem, 2.6vw, 2.2rem);
-      letter-spacing: .06em;
-      color: var(--gold);
-      text-shadow: 0 0 15px rgba(216,178,110,.35);
-    }
-    .subtitle { margin: 0; color: var(--muted); line-height: 1.7; }
+    .spread-guide{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; color:#ddd2ef; font-size:.9rem}
+    .spread-guide span{padding:3px 8px; border:1px solid rgba(255,255,255,.2); border-radius:999px}
 
-    .panel {
-      margin-top: 18px;
-      border: 1px solid rgba(216,178,110,.3);
-      background: var(--card);
-      border-radius: 16px;
-      padding: 18px;
+    .cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:14px; margin-top:12px}
+    .tarot-card-wrap{perspective:1000px; min-height:270px}
+    .tarot-card{
+      position:relative; width:100%; height:100%; min-height:270px;
+      transform-style:preserve-3d; transition:transform .75s ease;
     }
+    .tarot-card.revealed{transform:rotateY(180deg)}
+    .face{
+      position:absolute; inset:0; border-radius:14px; backface-visibility:hidden;
+      border:1px solid rgba(232,197,122,.46); overflow:hidden;
+      box-shadow:0 10px 24px rgba(0,0,0,.38), inset 0 0 0 1px rgba(255,255,255,.05);
+    }
+    .back{
+      background:
+        radial-gradient(circle at 50% 30%, rgba(232,197,122,.25), transparent 35%),
+        linear-gradient(165deg,#321d4b,#1b112b);
+      display:flex; align-items:center; justify-content:center; flex-direction:column;
+      font-size:1rem; color:#f5e9ca; letter-spacing:.06em;
+    }
+    .back .glyph{font-size:2rem; margin-bottom:10px}
 
-    label { display: block; margin-bottom: 8px; color: var(--muted); }
-    input, textarea, button, select {
-      width: 100%;
-      border-radius: 10px;
-      border: 1px solid rgba(255,255,255,.18);
-      background: rgba(15,10,22,.7);
-      color: #fff;
-      font: inherit;
-      padding: 12px 14px;
-      outline: none;
+    .front{
+      transform:rotateY(180deg);
+      background:linear-gradient(180deg,#2a163f,#1a1029);
+      padding:14px;
     }
-    textarea { min-height: 90px; resize: vertical; }
+    .tag{display:inline-block; font-size:.8rem; padding:2px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.2); color:#e6dcf8}
+    .front h3{margin:.55rem 0 .4rem; color:var(--gold); font-size:1.06rem}
+    .front p{margin:.2rem 0; line-height:1.68}
 
-    button {
-      cursor: pointer;
-      border-color: rgba(216,178,110,.55);
-      background: linear-gradient(180deg, rgba(216,178,110,.18), rgba(216,178,110,.08));
-      transition: .2s;
-    }
-    button:hover { transform: translateY(-1px); box-shadow: 0 8px 22px rgba(0,0,0,.3); }
-    .row { display: grid; gap: 12px; grid-template-columns: 1fr; }
-    @media(min-width: 760px) {
-      .row.two { grid-template-columns: 1fr 1fr; }
-      .row.three { grid-template-columns: repeat(3, 1fr); }
-    }
-
-    .hidden { display: none; }
-    .status { color: var(--ok); font-size: .95rem; margin-top: 8px; }
-
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 14px;
-      margin-top: 10px;
-    }
-    .tarot-card {
-      border: 1px solid rgba(216,178,110,.45);
-      border-radius: 14px;
-      padding: 14px;
-      background: linear-gradient(190deg, rgba(38,20,56,.9), rgba(20,12,30,.95));
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,.05), 0 10px 26px rgba(0,0,0,.35);
-    }
-    .tarot-card h3 { margin: 0 0 6px; font-size: 1.04rem; color: var(--gold); }
-    .tag {
-      display: inline-block; font-size: .82rem; padding: 2px 8px; border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.18); color: #e8ddff; margin-bottom: 10px;
-    }
-    .summary {
-      margin-top: 14px;
-      line-height: 1.8;
-      color: #f2e7ff;
-      border-top: 1px dashed rgba(216,178,110,.4);
-      padding-top: 10px;
-    }
-
-    .footer {
-      text-align: center;
-      color: #b9a9cc;
-      font-size: .86rem;
-      margin-top: 14px;
-    }
+    .summary{margin-top:14px; border-top:1px dashed rgba(232,197,122,.4); padding-top:10px; line-height:1.8}
+    .footer{text-align:center; color:#b7a8cb; margin-top:14px; font-size:.86rem}
   </style>
 </head>
 <body>
+  <div class="shop-bg"></div>
   <div class="stars"></div>
+
   <div class="wrap">
     <section class="hero">
-      <h1>🔮 月影塔罗馆</h1>
-      <p class="subtitle">传统三牌阵流程：先认识你，再聆听问题，最后揭示牌面与解读（过去 / 现在 / 未来）。</p>
+      <h1>🔮 月影塔罗店</h1>
+      <p class="sub">传统流程：记录名字 → 书写问题 → 洗牌开牌（三张）→ 结合牌位解读。</p>
 
       <div class="panel" id="step1">
-        <label for="name">1) 你的名字</label>
+        <label for="name">1）你的名字</label>
         <div class="row two">
-          <input id="name" placeholder="请输入你的名字，例如：甜甜" />
-          <button id="toStep2">继续，告诉我你的问题</button>
+          <input id="name" placeholder="请输入名字，例如：甜甜" />
+          <button id="nextBtn">进入提问</button>
         </div>
         <div class="status" id="nameStatus"></div>
       </div>
 
       <div class="panel hidden" id="step2">
-        <label for="question">2) 你希望占卜的问题</label>
-        <textarea id="question" placeholder="例如：我今年在科研和财富上的关键机会是什么？"></textarea>
+        <label for="question">2）你想占卜的问题</label>
+        <textarea id="question" placeholder="比如：我接下来三个月在科研、财富、内容创作上的关键机会是什么？"></textarea>
         <div class="row two" style="margin-top:10px;">
           <select id="spread">
-            <option value="past-present-future">传统三牌阵（过去/现在/未来）</option>
-            <option value="situation-action-outcome">情境三牌阵（现状/建议/结果）</option>
+            <option value="past-present-future">传统三牌阵（过去 / 现在 / 未来）</option>
+            <option value="situation-action-outcome">情境三牌阵（现状 / 建议 / 结果）</option>
           </select>
-          <button id="drawBtn">抽牌并解读</button>
+          <button id="drawBtn">洗牌并开牌</button>
         </div>
+        <div class="spread-guide" id="spreadGuide"></div>
       </div>
 
       <div class="panel hidden" id="resultPanel">
-        <h2 id="greeting" style="margin-top:0; color:var(--gold)"></h2>
-        <p id="questionEcho" style="color:#d7cde8"></p>
+        <h2 id="title" style="margin:0;color:var(--gold)"></h2>
+        <p id="questionEcho" style="color:#d8cde9"></p>
         <div class="cards" id="cards"></div>
         <div class="summary" id="summary"></div>
         <div class="row two" style="margin-top:12px;">
-          <button id="redraw">重新洗牌再抽一次</button>
-          <button id="resetAll">开始新的占卜</button>
+          <button id="redrawBtn">重新洗牌</button>
+          <button id="resetBtn">开始新的占卜</button>
         </div>
       </div>
 
-      <p class="footer">* 仅供灵感和自我反思，不替代现实决策与专业建议。</p>
+      <p class="footer">* 本页面用于灵感与反思，不替代医疗、法律、投资等专业建议。</p>
     </section>
   </div>
 
   <script>
-    const tarotDeck = [
-      {name:"愚者", up:"新的旅程、勇气、跳出舒适圈", rev:"冲动、准备不足、方向感缺失"},
-      {name:"魔术师", up:"资源整合、行动力、创造机会", rev:"分心、空有想法、执行打折"},
-      {name:"女祭司", up:"直觉、洞察、信息在沉淀", rev:"闭塞、疑虑过重、回避真相"},
-      {name:"女皇", up:"丰盛、成长、长期回报", rev:"过度享乐、拖延、边界模糊"},
-      {name:"皇帝", up:"结构、规则、掌控力", rev:"控制欲、僵化、缺乏弹性"},
-      {name:"教皇", up:"学习体系、导师、传统路径", rev:"教条、被框架束缚"},
-      {name:"恋人", up:"选择与价值一致、关系协同", rev:"价值冲突、优柔寡断"},
-      {name:"战车", up:"推进、胜利、强执行", rev:"急躁、失衡、方向偏航"},
-      {name:"力量", up:"内在稳定、柔性掌控", rev:"焦虑、意志波动"},
-      {name:"隐者", up:"深度思考、独立判断", rev:"封闭、过度孤立"},
-      {name:"命运之轮", up:"转机、周期上行、机遇", rev:"波动、外部变量大"},
-      {name:"正义", up:"理性评估、因果清晰", rev:"偏见、信息不完整"},
-      {name:"倒吊人", up:"换角度、延迟换回报", rev:"无谓停滞、卡顿"},
-      {name:"死神", up:"旧阶段结束，重启", rev:"抗拒变化、错过转型"},
-      {name:"节制", up:"平衡、融合、长期主义", rev:"极端、节奏失衡"},
-      {name:"恶魔", up:"欲望驱动、物质诱惑", rev:"摆脱依赖、夺回主动"},
-      {name:"高塔", up:"突发重构、打破旧模式", rev:"预警已现、延迟爆发"},
-      {name:"星星", up:"希望、疗愈、愿景清晰", rev:"理想化、执行不足"},
-      {name:"月亮", up:"不确定、潜意识线索", rev:"迷雾散去、看清风险"},
-      {name:"太阳", up:"成功、曝光、积极回报", rev:"过度乐观、细节忽略"},
-      {name:"审判", up:"复盘、觉醒、二次机会", rev:"自我怀疑、迟迟不决"},
-      {name:"世界", up:"完成、整合、阶段圆满", rev:"收尾不足、临门一脚"}
+    const deck = [
+      { name: "愚者", up: "新旅程开启，适合大胆尝试", rev: "冲动冒进，先补齐信息" },
+      { name: "魔术师", up: "资源齐备，执行会出结果", rev: "分心消耗，行动力打折" },
+      { name: "女祭司", up: "直觉很准，先观察再决定", rev: "想太多导致拖延" },
+      { name: "女皇", up: "稳步增长，适合长期布局", rev: "过度舒适影响节奏" },
+      { name: "皇帝", up: "建立规则，靠系统取胜", rev: "控制过强导致僵化" },
+      { name: "教皇", up: "借助导师与体系学习", rev: "被旧框架束缚" },
+      { name: "恋人", up: "关键选择要与价值一致", rev: "优柔寡断，内耗增加" },
+      { name: "战车", up: "推进力很强，适合冲刺", rev: "急躁导致偏航" },
+      { name: "力量", up: "温和但坚定，能稳住局面", rev: "情绪波动影响判断" },
+      { name: "隐者", up: "沉淀思考，独立判断", rev: "封闭过头，错失反馈" },
+      { name: "命运之轮", up: "周期转机，抓住窗口", rev: "波动加大，先控风险" },
+      { name: "正义", up: "理性评估，按规则行动", rev: "信息偏差，结论失真" },
+      { name: "倒吊人", up: "换角度会看到答案", rev: "停滞太久，需主动破局" },
+      { name: "死神", up: "旧阶段结束，利于重启", rev: "抗拒变化拖慢进展" },
+      { name: "节制", up: "整合资源，稳中求进", rev: "节奏失衡，效率下降" },
+      { name: "恶魔", up: "欲望驱动强，警惕执念", rev: "摆脱依赖，重获主动" },
+      { name: "高塔", up: "突发重构，打破旧秩序", rev: "隐患已久，尽快修复" },
+      { name: "星星", up: "愿景清晰，值得坚持", rev: "理想化，落地不足" },
+      { name: "月亮", up: "迷雾与不确定并存", rev: "真相逐渐浮现" },
+      { name: "太阳", up: "高能见度与积极回报", rev: "过度乐观忽略细节" },
+      { name: "审判", up: "复盘唤醒新的机会", rev: "犹豫不决错过时机" },
+      { name: "世界", up: "阶段圆满，准备升级", rev: "收尾不足，功亏一篑" }
     ];
 
-    const positionsMap = {
+    const spreadMap = {
       "past-present-future": ["过去", "现在", "未来"],
       "situation-action-outcome": ["现状", "建议行动", "结果趋势"]
     };
 
-    const $ = id => document.getElementById(id);
-    const step1 = $("step1"), step2 = $("step2"), resultPanel = $("resultPanel");
-    const nameInput = $("name"), qInput = $("question"), spreadSel = $("spread");
-
-    let currentName = "";
-    let currentQuestion = "";
+    const $ = (id) => document.getElementById(id);
+    const state = { name: "", question: "" };
 
     function shuffle(arr) {
       const a = [...arr];
@@ -229,87 +198,96 @@
       return a;
     }
 
-    function drawThree() {
-      const deck = shuffle(tarotDeck).slice(0, 3);
-      return deck.map(card => {
-        const reversed = Math.random() < 0.45;
-        return {
-          ...card,
-          orientation: reversed ? "逆位" : "正位",
-          meaning: reversed ? card.rev : card.up
-        }
+    function draw3() {
+      return shuffle(deck).slice(0, 3).map((c) => {
+        const reversed = Math.random() < 0.42;
+        return { ...c, ori: reversed ? "逆位" : "正位", meaning: reversed ? c.rev : c.up };
       });
     }
 
-    function composeSummary(cards, spreadType) {
-      const p = positionsMap[spreadType];
-      return `
-        <strong>综合启示：</strong><br>
-        ① 在「${p[0]}」位出现 <b>${cards[0].name}${cards[0].orientation}</b>，提示你需要正视起点条件。<br>
-        ② 「${p[1]}」位的 <b>${cards[1].name}${cards[1].orientation}</b>，说明当前最关键的是把问题落到执行策略。<br>
-        ③ 「${p[2]}」位的 <b>${cards[2].name}${cards[2].orientation}</b>，代表趋势可被你主动塑造。<br><br>
-        建议：把你的问题拆成“本周可执行动作”，每周复盘一次，这样牌面的提示才能转化成实际结果。
-      `;
+    function renderGuide(type) {
+      const labels = spreadMap[type];
+      $("spreadGuide").innerHTML = labels.map((l) => `<span>${l}</span>`).join("");
     }
 
-    $("toStep2").addEventListener("click", () => {
-      const n = nameInput.value.trim();
-      if (!n) {
-        $("nameStatus").textContent = "先告诉我你的名字，我才能为你开牌。";
-        return;
-      }
-      currentName = n;
-      $("nameStatus").textContent = `欢迎你，${n}。`;
-      step2.classList.remove("hidden");
-      qInput.focus();
-    });
+    function renderResult(cards, spread) {
+      const labels = spreadMap[spread];
+      $("title").textContent = `${state.name} 的牌面`;
+      $("questionEcho").innerHTML = `你的问题：<em>${state.question}</em>`;
 
-    $("drawBtn").addEventListener("click", () => {
-      const q = qInput.value.trim();
-      if (!currentName) {
-        $("nameStatus").textContent = "请先填写名字。";
-        return;
-      }
-      if (!q) {
-        alert("请先输入你希望占卜的问题。");
-        return;
-      }
-      currentQuestion = q;
-      const spreadType = spreadSel.value;
-      const labels = positionsMap[spreadType];
-      const cards = drawThree();
-
-      $("greeting").textContent = `${currentName} 的塔罗牌面`;
-      $("questionEcho").innerHTML = `你的问题：<em>${currentQuestion}</em>`;
-
-      const cardsWrap = $("cards");
-      cardsWrap.innerHTML = cards.map((c, i) => `
-        <article class="tarot-card">
-          <div class="tag">${labels[i]}</div>
-          <h3>${c.name} · ${c.orientation}</h3>
-          <p>${c.meaning}</p>
-        </article>
+      $("cards").innerHTML = cards.map((c, i) => `
+        <div class="tarot-card-wrap">
+          <article class="tarot-card" data-i="${i}">
+            <section class="face back">
+              <div class="glyph">✦</div>
+              <div>月影塔罗</div>
+              <small style="opacity:.8;margin-top:6px">点击翻开</small>
+            </section>
+            <section class="face front">
+              <span class="tag">${labels[i]}</span>
+              <h3>${c.name} · ${c.ori}</h3>
+              <p>${c.meaning}</p>
+            </section>
+          </article>
+        </div>
       `).join("");
 
-      $("summary").innerHTML = composeSummary(cards, spreadType);
-      resultPanel.classList.remove("hidden");
-      resultPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+      const summary = `
+        <strong>综合启示：</strong><br>
+        ① ${labels[0]}出现 <b>${cards[0].name}${cards[0].ori}</b>，先复盘过去策略。<br>
+        ② ${labels[1]}是 <b>${cards[1].name}${cards[1].ori}</b>，当下关键在执行方式。<br>
+        ③ ${labels[2]}落在 <b>${cards[2].name}${cards[2].ori}</b>，未来趋势由你持续行动塑造。<br><br>
+        建议：把问题拆成 1 个“今日动作 + 本周动作 + 本月目标”，让牌意变成现实成果。
+      `;
+      $("summary").innerHTML = summary;
+
+      setTimeout(() => {
+        document.querySelectorAll('.tarot-card').forEach((el, idx) => {
+          setTimeout(() => el.classList.add('revealed'), idx * 260);
+          el.addEventListener('click', () => el.classList.toggle('revealed'));
+        });
+      }, 120);
+    }
+
+    $("nextBtn").addEventListener("click", () => {
+      const n = $("name").value.trim();
+      if (!n) {
+        $("nameStatus").textContent = "请先告诉我你的名字。";
+        return;
+      }
+      state.name = n;
+      $("nameStatus").textContent = `欢迎你，${n}。请写下你最想问的问题。`;
+      $("step2").classList.remove("hidden");
+      $("question").focus();
     });
 
-    $("redraw").addEventListener("click", () => {
-      $("drawBtn").click();
+    $("spread").addEventListener('change', (e) => renderGuide(e.target.value));
+
+    $("drawBtn").addEventListener("click", () => {
+      const q = $("question").value.trim();
+      if (!state.name) return $("nameStatus").textContent = "请先填写名字。";
+      if (!q) return alert("请先输入你要占卜的问题。");
+      state.question = q;
+      const spread = $("spread").value;
+      const cards = draw3();
+      renderResult(cards, spread);
+      $("resultPanel").classList.remove("hidden");
+      $("resultPanel").scrollIntoView({ behavior: "smooth", block: "start" });
     });
 
-    $("resetAll").addEventListener("click", () => {
-      currentName = "";
-      currentQuestion = "";
-      nameInput.value = "";
-      qInput.value = "";
+    $("redrawBtn").addEventListener("click", () => $("drawBtn").click());
+
+    $("resetBtn").addEventListener("click", () => {
+      state.name = ""; state.question = "";
+      $("name").value = "";
+      $("question").value = "";
       $("nameStatus").textContent = "";
-      step2.classList.add("hidden");
-      resultPanel.classList.add("hidden");
+      $("step2").classList.add("hidden");
+      $("resultPanel").classList.add("hidden");
       window.scrollTo({ top: 0, behavior: "smooth" });
     });
+
+    renderGuide($("spread").value);
   </script>
 </body>
 </html>
