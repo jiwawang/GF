@@ -3,182 +3,215 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>月影塔罗店 · 传统占卜</title>
+  <title>月影塔罗店 · 动态占卜</title>
   <style>
     :root {
-      --bg:#0f0918;
-      --purple:#2a1740;
       --gold:#e8c57a;
-      --ink:#f8f1df;
-      --muted:#ccbce0;
+      --ink:#f7f1df;
+      --muted:#cdbfe0;
       --line:rgba(232,197,122,.45);
-      --panel:rgba(22,12,34,.72);
+      --panel:rgba(18,10,28,.65);
       --ok:#8ff2d0;
     }
     *{box-sizing:border-box}
     body{
-      margin:0; min-height:100vh; color:var(--ink);
+      margin:0;min-height:100vh;color:var(--ink);
       font-family:"Noto Serif SC","Microsoft YaHei",serif;
-      background:
-        radial-gradient(circle at 12% 10%,rgba(241,183,72,.18),transparent 35%),
-        radial-gradient(circle at 90% 15%,rgba(106,68,170,.25),transparent 40%),
-        linear-gradient(170deg,#120b1c, #1f1230 55%, #140b20);
+      background:#140d22;
       overflow-x:hidden;
     }
-    .shop-bg{
-      position:fixed; inset:0; pointer-events:none; opacity:.24;
-      background-image:
-        linear-gradient(to right, transparent 4%, rgba(255,255,255,.03) 4.2%, transparent 4.5%),
-        linear-gradient(to bottom, rgba(232,197,122,.14), transparent 30%),
-        radial-gradient(circle at 20% 65%, rgba(210,150,80,.25), transparent 36%),
-        radial-gradient(circle at 80% 70%, rgba(85,126,212,.19), transparent 35%);
-      filter:blur(1px);
+
+    .bg-photo{
+      position:fixed;inset:0;z-index:0;
+      background:
+        radial-gradient(circle at 20% 70%, rgba(209,145,79,.32), transparent 35%),
+        radial-gradient(circle at 80% 25%, rgba(95,60,170,.35), transparent 38%),
+        linear-gradient(170deg,#221236,#140d22 65%);
+      filter: blur(10px) saturate(1.1);
+      transform:scale(1.05);
+    }
+    .bg-overlay{
+      position:fixed;inset:0;z-index:1;pointer-events:none;
+      background:rgba(10,6,18,.38);
     }
     .stars::before,.stars::after{
-      content:""; position:fixed; inset:0; pointer-events:none;
+      content:"";position:fixed;inset:0;z-index:2;pointer-events:none;
       background-image:radial-gradient(circle,rgba(255,255,255,.72) 1px,transparent 1.2px);
-      background-size:4px 4px; opacity:.11; animation:drift 26s linear infinite;
+      background-size:4px 4px;opacity:.09;animation:drift 28s linear infinite;
     }
-    .stars::after{opacity:.07; animation-duration:40s; transform:scale(1.25)}
-    @keyframes drift{from{transform:translateY(0)}to{transform:translateY(-26px)}}
+    .stars::after{opacity:.06;animation-duration:40s;transform:scale(1.28)}
+    @keyframes drift{from{transform:translateY(0)}to{transform:translateY(-28px)}}
 
-    .wrap{width:min(1050px,94vw); margin:28px auto 40px; position:relative; z-index:2}
+    .wrap{position:relative;z-index:3;width:min(1100px,94vw);margin:24px auto 40px}
     .hero{
-      border:1px solid var(--line); border-radius:22px; padding:22px;
-      background:linear-gradient(180deg,var(--panel),rgba(18,10,28,.55));
+      border:1px solid var(--line);border-radius:20px;padding:20px;
+      background:linear-gradient(180deg,var(--panel),rgba(19,10,29,.45));
       backdrop-filter:blur(6px);
-      box-shadow:0 16px 38px rgba(0,0,0,.42), inset 0 0 0 1px rgba(255,255,255,.04);
+      box-shadow:0 16px 40px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.04);
+    }
+    h1{margin:0 0 8px;color:var(--gold);font-size:clamp(1.5rem,2.7vw,2.2rem);letter-spacing:.06em}
+    .sub{margin:0;color:var(--muted);line-height:1.7}
+
+    .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+    button,.btn{
+      border:1px solid rgba(232,197,122,.55);border-radius:10px;
+      background:linear-gradient(180deg,rgba(232,197,122,.23),rgba(232,197,122,.08));
+      color:#fff;padding:10px 14px;cursor:pointer;
     }
 
-    h1{margin:0 0 6px; font-size:clamp(1.5rem,2.5vw,2.2rem); color:var(--gold); letter-spacing:.06em}
-    .sub{margin:0; color:var(--muted); line-height:1.75}
-
-    .panel{margin-top:16px; border:1px solid rgba(232,197,122,.34); background:rgba(255,255,255,.05); border-radius:14px; padding:16px}
-    label{display:block; margin-bottom:8px; color:var(--muted)}
-    input,textarea,select,button{
-      width:100%; border:1px solid rgba(255,255,255,.22); border-radius:10px;
-      background:rgba(14,9,22,.76); color:#fff; font:inherit; padding:11px 13px;
-    }
-    textarea{min-height:90px; resize:vertical}
-    button{
-      cursor:pointer; border-color:rgba(232,197,122,.56);
-      background:linear-gradient(180deg,rgba(232,197,122,.21),rgba(232,197,122,.08));
-      transition:.2s transform,.2s box-shadow;
-    }
-    button:hover{transform:translateY(-1px); box-shadow:0 8px 20px rgba(0,0,0,.35)}
-    .row{display:grid; gap:12px; grid-template-columns:1fr}
-    @media(min-width:760px){.row.two{grid-template-columns:1fr 1fr}}
-
+    .panel{margin-top:14px;border:1px solid rgba(232,197,122,.35);border-radius:14px;padding:14px;background:rgba(255,255,255,.05)}
     .hidden{display:none}
-    .status{margin-top:8px; color:var(--ok); font-size:.95rem}
 
-    .spread-guide{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; color:#ddd2ef; font-size:.9rem}
-    .spread-guide span{padding:3px 8px; border:1px solid rgba(255,255,255,.2); border-radius:999px}
+    .table-zone{margin-top:14px}
+    .deck-wrap{position:relative;height:330px;display:flex;align-items:center;justify-content:center}
 
-    .cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:14px; margin-top:12px}
-    .tarot-card-wrap{perspective:1000px; min-height:270px}
-    .tarot-card{
-      position:relative; width:100%; height:100%; min-height:270px;
-      transform-style:preserve-3d; transition:transform .75s ease;
-    }
-    .tarot-card.revealed{transform:rotateY(180deg)}
-    .face{
-      position:absolute; inset:0; border-radius:14px; backface-visibility:hidden;
-      border:1px solid rgba(232,197,122,.46); overflow:hidden;
-      box-shadow:0 10px 24px rgba(0,0,0,.38), inset 0 0 0 1px rgba(255,255,255,.05);
-    }
-    .back{
+    .deck, .picked-row article{
+      width:160px;height:240px;border-radius:12px;
+      border:1px solid rgba(232,197,122,.48);
       background:
-        radial-gradient(circle at 50% 30%, rgba(232,197,122,.25), transparent 35%),
-        linear-gradient(165deg,#321d4b,#1b112b);
-      display:flex; align-items:center; justify-content:center; flex-direction:column;
-      font-size:1rem; color:#f5e9ca; letter-spacing:.06em;
+        radial-gradient(circle at 50% 28%, rgba(232,197,122,.25), transparent 34%),
+        linear-gradient(165deg,#311c4a,#1a1129);
+      box-shadow:0 12px 26px rgba(0,0,0,.38), inset 0 0 0 1px rgba(255,255,255,.05);
+      position:relative;
+      user-select:none;
     }
-    .back .glyph{font-size:2rem; margin-bottom:10px}
 
-    .front{
-      transform:rotateY(180deg);
-      background:linear-gradient(180deg,#2a163f,#1a1029);
-      padding:14px;
+    .deck::before{
+      content:"✦ 月影塔罗 ✦";position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);
+      text-align:center;color:#f8e9c6;letter-spacing:.08em
     }
-    .tag{display:inline-block; font-size:.8rem; padding:2px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.2); color:#e6dcf8}
-    .front h3{margin:.55rem 0 .4rem; color:var(--gold); font-size:1.06rem}
-    .front p{margin:.2rem 0; line-height:1.68}
 
-    .summary{margin-top:14px; border-top:1px dashed rgba(232,197,122,.4); padding-top:10px; line-height:1.8}
-    .footer{text-align:center; color:#b7a8cb; margin-top:14px; font-size:.86rem}
+    .shuffle{animation:shuffle 1s ease-in-out infinite alternate}
+    @keyframes shuffle{
+      0%{transform:translateX(-16px) rotate(-7deg)}
+      50%{transform:translateX(16px) rotate(7deg)}
+      100%{transform:translateX(-10px) rotate(-5deg)}
+    }
+
+    .fan{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:10px}
+    .fan .choice{
+      width:150px;height:220px;border-radius:12px;cursor:pointer;
+      transform:rotate(var(--r)) translateY(var(--y));
+      transition:.2s transform,.2s filter;
+      filter:brightness(.95);
+    }
+    .fan .choice:hover{transform:rotate(var(--r)) translateY(calc(var(--y) - 8px));filter:brightness(1.08)}
+
+    .picked-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:12px}
+    .picked-row article{width:100%;height:auto;min-height:270px;padding:12px;background:linear-gradient(180deg,#2a163f,#1a1029)}
+    .tag{display:inline-block;padding:2px 8px;border:1px solid rgba(255,255,255,.2);border-radius:999px;color:#e6dcf7;font-size:.82rem}
+    .picked-row h3{margin:.5rem 0 .4rem;color:var(--gold)}
+
+    .summary{margin-top:12px;border-top:1px dashed rgba(232,197,122,.4);padding-top:10px;line-height:1.8}
+
+    .modal{
+      position:fixed;inset:0;z-index:30;display:none;align-items:center;justify-content:center;
+      background:rgba(8,5,13,.6);backdrop-filter:blur(4px);
+    }
+    .modal.show{display:flex}
+    .dialog{
+      width:min(560px,92vw);background:linear-gradient(180deg,rgba(35,21,52,.95),rgba(19,10,29,.95));
+      border:1px solid var(--line);border-radius:14px;padding:16px;
+      box-shadow:0 20px 48px rgba(0,0,0,.5);
+    }
+    .dialog h2{margin:0 0 8px;color:var(--gold)}
+    .dialog label{display:block;margin-top:8px;color:var(--muted)}
+    .dialog input,.dialog textarea,.dialog select{
+      width:100%;margin-top:6px;padding:10px;border-radius:10px;
+      border:1px solid rgba(255,255,255,.2);background:rgba(12,7,18,.8);color:#fff;
+      font:inherit;
+    }
+
+    .dialog .actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+    .hint{font-size:.9rem;color:#ccbfe0}
+
+    .footer{text-align:center;color:#b8aacb;margin-top:14px;font-size:.86rem}
   </style>
 </head>
 <body>
-  <div class="shop-bg"></div>
+  <div class="bg-photo"></div>
+  <div class="bg-overlay"></div>
   <div class="stars"></div>
+
+  <audio id="bgm" loop preload="none" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_a8cd79be19.mp3?filename=relaxing-meditation-ambient-11157.mp3"></audio>
 
   <div class="wrap">
     <section class="hero">
       <h1>🔮 月影塔罗店</h1>
-      <p class="sub">传统流程：记录名字 → 书写问题 → 洗牌开牌（三张）→ 结合牌位解读。</p>
+      <p class="sub">模糊塔罗店背景 · 洗牌动画 · 自主抽牌 · 弹窗问询流程</p>
 
-      <div class="panel" id="step1">
-        <label for="name">1）你的名字</label>
-        <div class="row two">
-          <input id="name" placeholder="请输入名字，例如：甜甜" />
-          <button id="nextBtn">进入提问</button>
-        </div>
-        <div class="status" id="nameStatus"></div>
+      <div class="toolbar">
+        <button id="openFlow">开始占卜</button>
+        <button id="musicBtn">开启背景音乐</button>
+        <span class="hint">浏览器限制自动播放，需点击一次“开启背景音乐”。</span>
       </div>
 
-      <div class="panel hidden" id="step2">
-        <label for="question">2）你想占卜的问题</label>
-        <textarea id="question" placeholder="比如：我接下来三个月在科研、财富、内容创作上的关键机会是什么？"></textarea>
-        <div class="row two" style="margin-top:10px;">
-          <select id="spread">
-            <option value="past-present-future">传统三牌阵（过去 / 现在 / 未来）</option>
-            <option value="situation-action-outcome">情境三牌阵（现状 / 建议 / 结果）</option>
-          </select>
-          <button id="drawBtn">洗牌并开牌</button>
-        </div>
-        <div class="spread-guide" id="spreadGuide"></div>
-      </div>
+      <div class="panel table-zone">
+        <div id="stageText">点击“开始占卜”，女祭司会先询问你的名字与问题。</div>
 
-      <div class="panel hidden" id="resultPanel">
-        <h2 id="title" style="margin:0;color:var(--gold)"></h2>
-        <p id="questionEcho" style="color:#d8cde9"></p>
-        <div class="cards" id="cards"></div>
+        <div class="deck-wrap" id="deckWrap">
+          <div class="deck" id="deck"></div>
+        </div>
+
+        <div class="fan hidden" id="fan"></div>
+
+        <div class="picked-row" id="pickedRow"></div>
         <div class="summary" id="summary"></div>
-        <div class="row two" style="margin-top:12px;">
-          <button id="redrawBtn">重新洗牌</button>
-          <button id="resetBtn">开始新的占卜</button>
-        </div>
       </div>
 
-      <p class="footer">* 本页面用于灵感与反思，不替代医疗、法律、投资等专业建议。</p>
+      <p class="footer">* 仅供灵感与反思，不替代投资/医疗/法律等专业建议。</p>
     </section>
   </div>
 
+  <div class="modal" id="flowModal">
+    <div class="dialog">
+      <h2>月影问询</h2>
+      <div id="stepName">
+        <label>你的名字</label>
+        <input id="nameInput" placeholder="例如：甜甜" />
+        <div class="actions"><button id="toQuestion">下一步</button></div>
+      </div>
+
+      <div id="stepQuestion" class="hidden">
+        <label>你希望占卜的问题</label>
+        <textarea id="questionInput" placeholder="例如：我今年科研与财富增长的关键机会是什么？"></textarea>
+        <label>牌阵</label>
+        <select id="spreadSelect">
+          <option value="past-present-future">传统三牌阵（过去 / 现在 / 未来）</option>
+          <option value="situation-action-outcome">情境三牌阵（现状 / 建议 / 结果）</option>
+        </select>
+        <div class="actions">
+          <button id="startShuffle">开始洗牌</button>
+          <button id="cancelFlow">取消</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
-    const deck = [
-      { name: "愚者", up: "新旅程开启，适合大胆尝试", rev: "冲动冒进，先补齐信息" },
-      { name: "魔术师", up: "资源齐备，执行会出结果", rev: "分心消耗，行动力打折" },
-      { name: "女祭司", up: "直觉很准，先观察再决定", rev: "想太多导致拖延" },
-      { name: "女皇", up: "稳步增长，适合长期布局", rev: "过度舒适影响节奏" },
-      { name: "皇帝", up: "建立规则，靠系统取胜", rev: "控制过强导致僵化" },
-      { name: "教皇", up: "借助导师与体系学习", rev: "被旧框架束缚" },
-      { name: "恋人", up: "关键选择要与价值一致", rev: "优柔寡断，内耗增加" },
-      { name: "战车", up: "推进力很强，适合冲刺", rev: "急躁导致偏航" },
-      { name: "力量", up: "温和但坚定，能稳住局面", rev: "情绪波动影响判断" },
-      { name: "隐者", up: "沉淀思考，独立判断", rev: "封闭过头，错失反馈" },
-      { name: "命运之轮", up: "周期转机，抓住窗口", rev: "波动加大，先控风险" },
-      { name: "正义", up: "理性评估，按规则行动", rev: "信息偏差，结论失真" },
-      { name: "倒吊人", up: "换角度会看到答案", rev: "停滞太久，需主动破局" },
-      { name: "死神", up: "旧阶段结束，利于重启", rev: "抗拒变化拖慢进展" },
-      { name: "节制", up: "整合资源，稳中求进", rev: "节奏失衡，效率下降" },
-      { name: "恶魔", up: "欲望驱动强，警惕执念", rev: "摆脱依赖，重获主动" },
-      { name: "高塔", up: "突发重构，打破旧秩序", rev: "隐患已久，尽快修复" },
-      { name: "星星", up: "愿景清晰，值得坚持", rev: "理想化，落地不足" },
-      { name: "月亮", up: "迷雾与不确定并存", rev: "真相逐渐浮现" },
-      { name: "太阳", up: "高能见度与积极回报", rev: "过度乐观忽略细节" },
-      { name: "审判", up: "复盘唤醒新的机会", rev: "犹豫不决错过时机" },
-      { name: "世界", up: "阶段圆满，准备升级", rev: "收尾不足，功亏一篑" }
+    const deckData = [
+      {name:"愚者", up:"新旅程开启，适合勇敢尝试", rev:"冲动冒进，先补齐信息"},
+      {name:"魔术师", up:"资源齐备，执行会出结果", rev:"分心消耗，行动力打折"},
+      {name:"女祭司", up:"直觉很准，先观察再行动", rev:"想太多导致犹豫"},
+      {name:"女皇", up:"稳步增长，利于长期布局", rev:"舒适过度，节奏放缓"},
+      {name:"皇帝", up:"建立秩序，以系统取胜", rev:"控制过强导致僵化"},
+      {name:"教皇", up:"借助导师体系加速学习", rev:"被旧框架束缚"},
+      {name:"恋人", up:"选择与价值一致", rev:"优柔寡断，内耗增加"},
+      {name:"战车", up:"推进力强，适合冲刺", rev:"急躁偏航"},
+      {name:"力量", up:"稳定心态，柔性掌控", rev:"焦虑影响判断"},
+      {name:"隐者", up:"沉淀思考，独立判断", rev:"封闭过头，错失反馈"},
+      {name:"命运之轮", up:"转机出现，抓住窗口", rev:"波动增大，先控风险"},
+      {name:"正义", up:"按规则理性决策", rev:"信息偏差导致误判"},
+      {name:"倒吊人", up:"换角度会找到答案", rev:"停滞太久需主动破局"},
+      {name:"死神", up:"旧阶段结束，利于重启", rev:"抗拒变化拖慢进展"},
+      {name:"节制", up:"整合资源，稳中求进", rev:"节奏失衡，效率下降"},
+      {name:"恶魔", up:"欲望驱动强，警惕执念", rev:"摆脱依赖重获主动"},
+      {name:"高塔", up:"突发重构，打破旧模式", rev:"隐患拖延，尽快修复"},
+      {name:"星星", up:"愿景清晰，值得坚持", rev:"理想化，落地不足"},
+      {name:"月亮", up:"不确定中藏线索", rev:"迷雾散去，看清风险"},
+      {name:"太阳", up:"曝光与回报同步提升", rev:"过度乐观忽视细节"},
+      {name:"审判", up:"复盘唤醒第二机会", rev:"犹豫不决错过窗口"},
+      {name:"世界", up:"阶段圆满准备升级", rev:"收尾不足功亏一篑"}
     ];
 
     const spreadMap = {
@@ -186,108 +219,122 @@
       "situation-action-outcome": ["现状", "建议行动", "结果趋势"]
     };
 
-    const $ = (id) => document.getElementById(id);
-    const state = { name: "", question: "" };
+    const state = {name:"", question:"", spread:"past-present-future", selected:[]};
+    const $ = (id)=>document.getElementById(id);
 
-    function shuffle(arr) {
-      const a = [...arr];
-      for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
+    function shuffle(arr){
+      const a=[...arr];
+      for(let i=a.length-1;i>0;i--){
+        const j=Math.floor(Math.random()*(i+1));
+        [a[i],a[j]]=[a[j],a[i]];
       }
       return a;
     }
 
-    function draw3() {
-      return shuffle(deck).slice(0, 3).map((c) => {
-        const reversed = Math.random() < 0.42;
-        return { ...c, ori: reversed ? "逆位" : "正位", meaning: reversed ? c.rev : c.up };
+    function openModal(){ $("flowModal").classList.add("show"); }
+    function closeModal(){ $("flowModal").classList.remove("show"); }
+
+    function startShuffling(){
+      $("deck").classList.add("shuffle");
+      $("stageText").textContent = `${state.name}，正在洗牌...请默念你的问题。`;
+      $("fan").classList.add("hidden");
+      $("pickedRow").innerHTML = "";
+      $("summary").innerHTML = "";
+
+      setTimeout(() => {
+        $("deck").classList.remove("shuffle");
+        showFan();
+      }, 2600);
+    }
+
+    function showFan(){
+      const cards = shuffle(deckData).slice(0, 7);
+      const fan = $("fan");
+      fan.innerHTML = cards.map((_,i)=>`<div class="choice deck" data-i="${i}" style="--r:${-18+i*6}deg;--y:${Math.abs(3-i)*2}px"></div>`).join("");
+      fan.classList.remove("hidden");
+      $("stageText").textContent = "请自主选择 3 张牌（点击牌背）";
+
+      state.selected = [];
+      [...fan.querySelectorAll('.choice')].forEach((el, idx)=>{
+        el.addEventListener('click', ()=>{
+          if(state.selected.length>=3 || el.dataset.locked) return;
+          el.dataset.locked='1';
+          el.style.opacity='.45';
+          state.selected.push(cards[idx]);
+          if(state.selected.length===3){
+            renderReading();
+            fan.classList.add('hidden');
+          }
+        });
       });
     }
 
-    function renderGuide(type) {
-      const labels = spreadMap[type];
-      $("spreadGuide").innerHTML = labels.map((l) => `<span>${l}</span>`).join("");
-    }
+    function renderReading(){
+      const labels = spreadMap[state.spread];
+      const picks = state.selected.map(c=>{
+        const rev = Math.random()<0.42;
+        return {...c, ori: rev?"逆位":"正位", meaning: rev?c.rev:c.up};
+      });
 
-    function renderResult(cards, spread) {
-      const labels = spreadMap[spread];
-      $("title").textContent = `${state.name} 的牌面`;
-      $("questionEcho").innerHTML = `你的问题：<em>${state.question}</em>`;
+      $("stageText").textContent = `${state.name} 的牌面已揭示`;
+      $("pickedRow").innerHTML = picks.map((c,i)=>`
+        <article>
+          <span class="tag">${labels[i]}</span>
+          <h3>${c.name} · ${c.ori}</h3>
+          <p>${c.meaning}</p>
+        </article>
+      `).join('');
 
-      $("cards").innerHTML = cards.map((c, i) => `
-        <div class="tarot-card-wrap">
-          <article class="tarot-card" data-i="${i}">
-            <section class="face back">
-              <div class="glyph">✦</div>
-              <div>月影塔罗</div>
-              <small style="opacity:.8;margin-top:6px">点击翻开</small>
-            </section>
-            <section class="face front">
-              <span class="tag">${labels[i]}</span>
-              <h3>${c.name} · ${c.ori}</h3>
-              <p>${c.meaning}</p>
-            </section>
-          </article>
-        </div>
-      `).join("");
-
-      const summary = `
-        <strong>综合启示：</strong><br>
-        ① ${labels[0]}出现 <b>${cards[0].name}${cards[0].ori}</b>，先复盘过去策略。<br>
-        ② ${labels[1]}是 <b>${cards[1].name}${cards[1].ori}</b>，当下关键在执行方式。<br>
-        ③ ${labels[2]}落在 <b>${cards[2].name}${cards[2].ori}</b>，未来趋势由你持续行动塑造。<br><br>
-        建议：把问题拆成 1 个“今日动作 + 本周动作 + 本月目标”，让牌意变成现实成果。
+      $("summary").innerHTML = `
+        <strong>问题：</strong>${state.question}<br><br>
+        <strong>综合解读：</strong><br>
+        ① ${labels[0]}位 <b>${picks[0].name}${picks[0].ori}</b>：先看过去策略是否仍有效。<br>
+        ② ${labels[1]}位 <b>${picks[1].name}${picks[1].ori}</b>：当前关键在执行动作与节奏。<br>
+        ③ ${labels[2]}位 <b>${picks[2].name}${picks[2].ori}</b>：未来趋势由你持续行动塑造。<br><br>
+        建议：把问题拆成“今天1件事 + 本周3件事”，让牌意落地。
       `;
-      $("summary").innerHTML = summary;
-
-      setTimeout(() => {
-        document.querySelectorAll('.tarot-card').forEach((el, idx) => {
-          setTimeout(() => el.classList.add('revealed'), idx * 260);
-          el.addEventListener('click', () => el.classList.toggle('revealed'));
-        });
-      }, 120);
     }
 
-    $("nextBtn").addEventListener("click", () => {
-      const n = $("name").value.trim();
-      if (!n) {
-        $("nameStatus").textContent = "请先告诉我你的名字。";
-        return;
-      }
+    $("openFlow").addEventListener('click', ()=>{
+      $("stepName").classList.remove('hidden');
+      $("stepQuestion").classList.add('hidden');
+      openModal();
+    });
+
+    $("toQuestion").addEventListener('click', ()=>{
+      const n = $("nameInput").value.trim();
+      if(!n) return;
       state.name = n;
-      $("nameStatus").textContent = `欢迎你，${n}。请写下你最想问的问题。`;
-      $("step2").classList.remove("hidden");
-      $("question").focus();
+      $("stepName").classList.add('hidden');
+      $("stepQuestion").classList.remove('hidden');
+      $("questionInput").focus();
     });
 
-    $("spread").addEventListener('change', (e) => renderGuide(e.target.value));
-
-    $("drawBtn").addEventListener("click", () => {
-      const q = $("question").value.trim();
-      if (!state.name) return $("nameStatus").textContent = "请先填写名字。";
-      if (!q) return alert("请先输入你要占卜的问题。");
+    $("startShuffle").addEventListener('click', ()=>{
+      const q = $("questionInput").value.trim();
+      if(!q){ alert('请先输入问题'); return; }
       state.question = q;
-      const spread = $("spread").value;
-      const cards = draw3();
-      renderResult(cards, spread);
-      $("resultPanel").classList.remove("hidden");
-      $("resultPanel").scrollIntoView({ behavior: "smooth", block: "start" });
+      state.spread = $("spreadSelect").value;
+      closeModal();
+      startShuffling();
     });
 
-    $("redrawBtn").addEventListener("click", () => $("drawBtn").click());
+    $("cancelFlow").addEventListener('click', closeModal);
 
-    $("resetBtn").addEventListener("click", () => {
-      state.name = ""; state.question = "";
-      $("name").value = "";
-      $("question").value = "";
-      $("nameStatus").textContent = "";
-      $("step2").classList.add("hidden");
-      $("resultPanel").classList.add("hidden");
-      window.scrollTo({ top: 0, behavior: "smooth" });
+    $("musicBtn").addEventListener('click', async ()=>{
+      const bgm = $("bgm");
+      if(bgm.paused){
+        try{
+          await bgm.play();
+          $("musicBtn").textContent = '暂停背景音乐';
+        }catch(e){
+          alert('播放失败，请再点一次或检查浏览器音频权限');
+        }
+      }else{
+        bgm.pause();
+        $("musicBtn").textContent = '开启背景音乐';
+      }
     });
-
-    renderGuide($("spread").value);
   </script>
 </body>
 </html>
