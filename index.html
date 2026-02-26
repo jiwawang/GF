@@ -1,710 +1,315 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>終端</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>月影塔罗馆 · Tarot Reading</title>
+  <style>
+    :root {
+      --bg1: #12071f;
+      --bg2: #2b1241;
+      --gold: #d8b26e;
+      --light: #f4e7c8;
+      --muted: #c8bdd6;
+      --card: rgba(255, 255, 255, 0.08);
+      --border: rgba(216, 178, 110, 0.45);
+      --ok: #7be0c4;
+    }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Noto Serif SC", "Microsoft YaHei", serif;
+      color: var(--light);
+      background:
+        radial-gradient(circle at 20% 10%, rgba(109,70,162,.35), transparent 40%),
+        radial-gradient(circle at 80% 20%, rgba(241,196,15,.16), transparent 34%),
+        radial-gradient(circle at 50% 100%, rgba(34,99,140,.24), transparent 40%),
+        linear-gradient(160deg, var(--bg1), var(--bg2));
+      overflow-x: hidden;
+    }
 
-        body {
-            background: #D5E5E5;
-            font-family: 'Press Start+2P', 'Courier New', monospace;
-            height: 100vh;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-        }
+    .stars::before, .stars::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image: radial-gradient(circle, rgba(255,255,255,.65) 1px, transparent 1.2px);
+      background-size: 3px 3px;
+      opacity: .12;
+      animation: drift 22s linear infinite;
+    }
+    .stars::after { opacity: .08; animation-duration: 36s; transform: scale(1.3); }
+    @keyframes drift { from { transform: translateY(0); } to { transform: translateY(-30px);} }
 
-        body::before {
-            content: '🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈 🌈';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 200%;
-            height: 200%;
-            font-size: 50px;
-            line-height: 100px;
-            opacity: 0.08;
-            z-index: 0;
-            pointer-events: none;
-            word-wrap: break-word;
-        }
+    .wrap {
+      width: min(980px, 94vw);
+      margin: 30px auto 48px;
+      position: relative;
+      z-index: 2;
+    }
 
-        .terminal-window {
-            width: 85%;
-            max-width: 1000px;
-            height: 75%;
-            background: #F9DAD5;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            overflow: auto;
-            position: relative;
-            z-index: 1;
-            display: flex;
-            flex-direction: column;
-            resize: both;
-            min-width: 400px;
-            min-height: 300px;
-        }
-        
-        .terminal-window::-webkit-resizer {
-            background: transparent;
-        }
+    .hero {
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+      background: linear-gradient(180deg, rgba(20,12,35,.7), rgba(22,10,32,.45));
+      backdrop-filter: blur(5px);
+      box-shadow: 0 14px 40px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.05);
+    }
 
-        .window-header {
-            background: #f0c5c0;
-            padding: 12px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 2px solid #e8b5b0;
-            cursor: move;
-        }
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(1.6rem, 2.6vw, 2.2rem);
+      letter-spacing: .06em;
+      color: var(--gold);
+      text-shadow: 0 0 15px rgba(216,178,110,.35);
+    }
+    .subtitle { margin: 0; color: var(--muted); line-height: 1.7; }
 
-        .window-buttons {
-            display: flex;
-            gap: 8px;
-        }
+    .panel {
+      margin-top: 18px;
+      border: 1px solid rgba(216,178,110,.3);
+      background: var(--card);
+      border-radius: 16px;
+      padding: 18px;
+    }
 
-        .window-button {
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            display: inline-block;
-        }
+    label { display: block; margin-bottom: 8px; color: var(--muted); }
+    input, textarea, button, select {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(15,10,22,.7);
+      color: #fff;
+      font: inherit;
+      padding: 12px 14px;
+      outline: none;
+    }
+    textarea { min-height: 90px; resize: vertical; }
 
-        .button-red { background: #ff5f56; }
-        .button-yellow { background: #ffbd2e; }
-        .button-green { background: #27c93f; }
+    button {
+      cursor: pointer;
+      border-color: rgba(216,178,110,.55);
+      background: linear-gradient(180deg, rgba(216,178,110,.18), rgba(216,178,110,.08));
+      transition: .2s;
+    }
+    button:hover { transform: translateY(-1px); box-shadow: 0 8px 22px rgba(0,0,0,.3); }
+    .row { display: grid; gap: 12px; grid-template-columns: 1fr; }
+    @media(min-width: 760px) {
+      .row.two { grid-template-columns: 1fr 1fr; }
+      .row.three { grid-template-columns: repeat(3, 1fr); }
+    }
 
-        .pixel-cat {
-            width: 48px;
-            height: 48px;
-            image-rendering: pixelated;
-            image-rendering: -moz-crisp-edges;
-            image-rendering: crisp-edges;
-        }
+    .hidden { display: none; }
+    .status { color: var(--ok); font-size: .95rem; margin-top: 8px; }
 
-        .terminal {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            color: #F6599F;
-        }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
+      margin-top: 10px;
+    }
+    .tarot-card {
+      border: 1px solid rgba(216,178,110,.45);
+      border-radius: 14px;
+      padding: 14px;
+      background: linear-gradient(190deg, rgba(38,20,56,.9), rgba(20,12,30,.95));
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.05), 0 10px 26px rgba(0,0,0,.35);
+    }
+    .tarot-card h3 { margin: 0 0 6px; font-size: 1.04rem; color: var(--gold); }
+    .tag {
+      display: inline-block; font-size: .82rem; padding: 2px 8px; border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.18); color: #e8ddff; margin-bottom: 10px;
+    }
+    .summary {
+      margin-top: 14px;
+      line-height: 1.8;
+      color: #f2e7ff;
+      border-top: 1px dashed rgba(216,178,110,.4);
+      padding-top: 10px;
+    }
 
-        .terminal-header {
-            color: #4B4E7B;
-            margin-bottom: 20px;
-            font-size: 25px;
-            line-height: 1.8;
-            text-shadow: none;
-            white-space: pre;
-        }
-
-        .output-line {
-            margin: 8px 0;
-            line-height: 2;
-            font-size: 25px;
-        }
-
-        .prompt {
-            color: #4B4E7B;
-        }
-
-        .user-input {
-            color: #F6599F;
-        }
-
-        .input-line {
-            display: flex;
-            align-items: center;
-            margin-top: 10px;
-            font-size: 25px;
-        }
-
-        .input-line input {
-            flex: 1;
-            background: transparent;
-            border: none;
-            outline: none;
-            color: #F6599F;
-            font-family: 'Press Start+2P', 'Courier New', monospace;
-            font-size: 25px;
-            padding: 5px;
-        }
-
-        .cursor {
-            display: inline-block;
-            width: 8px;
-            height: 12px;
-            background: #F6599F;
-            animation: blink 1s infinite;
-        }
-
-        @keyframes blink {
-            0%, 49% { opacity: 1; }
-            50%, 100% { opacity: 0; }
-        }
-
-        @keyframes catType {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-3px); }
-        }
-
-        .cat-typing {
-            animation: catType 0.3s ease-in-out 3;
-        }
-
-        .error {
-            color: #ff4444;
-        }
-
-        .success {
-            color: #00ff88;
-        }
-
-        .info {
-            color: #ffaa00;
-        }
-
-        .system {
-            color: #4B4E7B;
-        }
-
-        .editor-window {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 70%;
-            max-width: 800px;
-            height: 60%;
-            background: #F9DAD5;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-            z-index: 100;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .editor-window.active {
-            display: flex;
-        }
-
-        .editor-header {
-            background: #f0c5c0;
-            padding: 12px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 2px solid #e8b5b0;
-            cursor: move;
-        }
-
-        .editor-title {
-            color: #4B4E7B;
-            font-size: 12px;
-        }
-
-        .run-button {
-            background: #4B4E7B;
-            color: #F9DAD5;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 8px;
-            font-family: 'Press Start+2P', monospace;
-            font-size: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .run-button:hover {
-            background: #F6599F;
-            transform: scale(1.05);
-        }
-
-        .run-button:active {
-            transform: scale(0.95);
-        }
-
-        .editor-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            padding: 20px;
-            overflow: hidden;
-        }
-
-        .editor-textarea {
-            flex: 1;
-            background: #ffffff;
-            border: 2px solid #e8b5b0;
-            border-radius: 10px;
-            padding: 15px;
-            font-family: 'Press Start+2P', monospace;
-            font-size: 12px;
-            color: #4B4E7B;
-            resize: none;
-            outline: none;
-            line-height: 1.8;
-        }
-
-        .editor-output {
-            margin-top: 15px;
-            background: #ffffff;
-            border: 2px solid #e8b5b0;
-            border-radius: 10px;
-            padding: 15px;
-            font-family: 'Press Start+2P', monospace;
-            font-size: 10px;
-            color: #F6599F;
-            max-height: 150px;
-            overflow-y: auto;
-            line-height: 1.8;
-        }
-
-        .guide-text {
-            color: #4B4E7B;
-            opacity: 0.6;
-        }
-
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #F9DAD5;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #f0c5c0;
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #e8b5b0;
-        }
-    </style>
+    .footer {
+      text-align: center;
+      color: #b9a9cc;
+      font-size: .86rem;
+      margin-top: 14px;
+    }
+  </style>
 </head>
 <body>
-    <div class="terminal-window" id="terminalWindow">
-        <div class="window-header" id="windowHeader">
-            <div class="window-buttons">
-                <span class="window-button button-red"></span>
-                <span class="window-button button-yellow"></span>
-                <span class="window-button button-green"></span>
-            </div>
-            <canvas id="pixelCat" class="pixel-cat" width="48" height="48"></canvas>
+  <div class="stars"></div>
+  <div class="wrap">
+    <section class="hero">
+      <h1>🔮 月影塔罗馆</h1>
+      <p class="subtitle">传统三牌阵流程：先认识你，再聆听问题，最后揭示牌面与解读（过去 / 现在 / 未来）。</p>
+
+      <div class="panel" id="step1">
+        <label for="name">1) 你的名字</label>
+        <div class="row two">
+          <input id="name" placeholder="请输入你的名字，例如：甜甜" />
+          <button id="toStep2">继续，告诉我你的问题</button>
         </div>
-        <div class="terminal" id="terminal">
-            <div class="terminal-header">    /\_/\  
-   ( o.o ) 
-    > ^ <
+        <div class="status" id="nameStatus"></div>
+      </div>
 
-Haruki、おかえりなさい
-Haruki，欢迎回来呢
-            </div>
-            <div id="output"></div>
-            <div class="input-line">
-                <span class="prompt">user@terminal:~$ </span>
-                <input type="text" id="commandInput" autofocus autocomplete="off">
-            </div>
+      <div class="panel hidden" id="step2">
+        <label for="question">2) 你希望占卜的问题</label>
+        <textarea id="question" placeholder="例如：我今年在科研和财富上的关键机会是什么？"></textarea>
+        <div class="row two" style="margin-top:10px;">
+          <select id="spread">
+            <option value="past-present-future">传统三牌阵（过去/现在/未来）</option>
+            <option value="situation-action-outcome">情境三牌阵（现状/建议/结果）</option>
+          </select>
+          <button id="drawBtn">抽牌并解读</button>
         </div>
-    </div>
+      </div>
 
-    <div class="editor-window" id="editorWindow">
-        <div class="editor-header" id="editorHeader">
-            <div class="window-buttons">
-                <span class="window-button button-red" onclick="closeEditor()"></span>
-                <span class="window-button button-yellow"></span>
-                <span class="window-button button-green"></span>
-            </div>
-            <span class="editor-title" id="editorTitle">女朋友编辑器</span>
-            <button class="run-button" onclick="runCode()">RUN</button>
+      <div class="panel hidden" id="resultPanel">
+        <h2 id="greeting" style="margin-top:0; color:var(--gold)"></h2>
+        <p id="questionEcho" style="color:#d7cde8"></p>
+        <div class="cards" id="cards"></div>
+        <div class="summary" id="summary"></div>
+        <div class="row two" style="margin-top:12px;">
+          <button id="redraw">重新洗牌再抽一次</button>
+          <button id="resetAll">开始新的占卜</button>
         </div>
-        <div class="editor-content">
-            <textarea class="editor-textarea" id="codeEditor" placeholder="在这里输入代码..."></textarea>
-            <div class="editor-output" id="editorOutput"></div>
-        </div>
-    </div>
+      </div>
 
-    <script>
-        // 绘制像素猫
-        function drawPixelCat(ctx, state = 'idle') {
-            ctx.clearRect(0, 0, 48, 48);
-            
-            const pixels = [
-                [0,0,0,1,1,0,0,0,0,1,1,0],
-                [0,0,1,2,2,1,0,0,1,2,2,1],
-                [0,1,2,2,2,2,1,1,2,2,2,2,1],
-                [1,2,2,3,3,2,2,2,2,3,3,2,1],
-                [1,2,2,2,2,2,2,2,2,2,2,2,1],
-                [1,2,2,2,4,2,2,2,2,4,2,2,1],
-                [1,2,2,4,4,4,2,2,4,4,4,2,1],
-                [0,1,2,2,4,2,2,2,2,4,2,1,0],
-                [0,0,1,2,2,2,2,2,2,2,1,0,0],
-                [0,0,0,1,1,1,1,1,1,1,0,0,0]
-            ];
+      <p class="footer">* 仅供灵感和自我反思，不替代现实决策与专业建议。</p>
+    </section>
+  </div>
 
-            const colors = {
-                0: 'transparent',
-                1: '#5a5a5a',
-                2: '#e8e8e8',
-                3: '#000000',
-                4: '#ff9ec7'
-            };
+  <script>
+    const tarotDeck = [
+      {name:"愚者", up:"新的旅程、勇气、跳出舒适圈", rev:"冲动、准备不足、方向感缺失"},
+      {name:"魔术师", up:"资源整合、行动力、创造机会", rev:"分心、空有想法、执行打折"},
+      {name:"女祭司", up:"直觉、洞察、信息在沉淀", rev:"闭塞、疑虑过重、回避真相"},
+      {name:"女皇", up:"丰盛、成长、长期回报", rev:"过度享乐、拖延、边界模糊"},
+      {name:"皇帝", up:"结构、规则、掌控力", rev:"控制欲、僵化、缺乏弹性"},
+      {name:"教皇", up:"学习体系、导师、传统路径", rev:"教条、被框架束缚"},
+      {name:"恋人", up:"选择与价值一致、关系协同", rev:"价值冲突、优柔寡断"},
+      {name:"战车", up:"推进、胜利、强执行", rev:"急躁、失衡、方向偏航"},
+      {name:"力量", up:"内在稳定、柔性掌控", rev:"焦虑、意志波动"},
+      {name:"隐者", up:"深度思考、独立判断", rev:"封闭、过度孤立"},
+      {name:"命运之轮", up:"转机、周期上行、机遇", rev:"波动、外部变量大"},
+      {name:"正义", up:"理性评估、因果清晰", rev:"偏见、信息不完整"},
+      {name:"倒吊人", up:"换角度、延迟换回报", rev:"无谓停滞、卡顿"},
+      {name:"死神", up:"旧阶段结束，重启", rev:"抗拒变化、错过转型"},
+      {name:"节制", up:"平衡、融合、长期主义", rev:"极端、节奏失衡"},
+      {name:"恶魔", up:"欲望驱动、物质诱惑", rev:"摆脱依赖、夺回主动"},
+      {name:"高塔", up:"突发重构、打破旧模式", rev:"预警已现、延迟爆发"},
+      {name:"星星", up:"希望、疗愈、愿景清晰", rev:"理想化、执行不足"},
+      {name:"月亮", up:"不确定、潜意识线索", rev:"迷雾散去、看清风险"},
+      {name:"太阳", up:"成功、曝光、积极回报", rev:"过度乐观、细节忽略"},
+      {name:"审判", up:"复盘、觉醒、二次机会", rev:"自我怀疑、迟迟不决"},
+      {name:"世界", up:"完成、整合、阶段圆满", rev:"收尾不足、临门一脚"}
+    ];
 
-            const scale = 4;
-            pixels.forEach((row, y) => {
-                row.forEach((pixel, x) => {
-                    if (pixel !== 0) {
-                        ctx.fillStyle = colors[pixel];
-                        ctx.fillRect(x * scale, y * scale + 4, scale, scale);
-                    }
-                });
-            });
+    const positionsMap = {
+      "past-present-future": ["过去", "现在", "未来"],
+      "situation-action-outcome": ["现状", "建议行动", "结果趋势"]
+    };
+
+    const $ = id => document.getElementById(id);
+    const step1 = $("step1"), step2 = $("step2"), resultPanel = $("resultPanel");
+    const nameInput = $("name"), qInput = $("question"), spreadSel = $("spread");
+
+    let currentName = "";
+    let currentQuestion = "";
+
+    function shuffle(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function drawThree() {
+      const deck = shuffle(tarotDeck).slice(0, 3);
+      return deck.map(card => {
+        const reversed = Math.random() < 0.45;
+        return {
+          ...card,
+          orientation: reversed ? "逆位" : "正位",
+          meaning: reversed ? card.rev : card.up
         }
+      });
+    }
 
-        const canvas = document.getElementById('pixelCat');
-        const ctx = canvas.getContext('2d');
-        drawPixelCat(ctx);
+    function composeSummary(cards, spreadType) {
+      const p = positionsMap[spreadType];
+      return `
+        <strong>综合启示：</strong><br>
+        ① 在「${p[0]}」位出现 <b>${cards[0].name}${cards[0].orientation}</b>，提示你需要正视起点条件。<br>
+        ② 「${p[1]}」位的 <b>${cards[1].name}${cards[1].orientation}</b>，说明当前最关键的是把问题落到执行策略。<br>
+        ③ 「${p[2]}」位的 <b>${cards[2].name}${cards[2].orientation}</b>，代表趋势可被你主动塑造。<br><br>
+        建议：把你的问题拆成“本周可执行动作”，每周复盘一次，这样牌面的提示才能转化成实际结果。
+      `;
+    }
 
-        const output = document.getElementById('output');
-        const input = document.getElementById('commandInput');
-        const terminal = document.getElementById('terminal');
-        const editorWindow = document.getElementById('editorWindow');
-        const codeEditor = document.getElementById('codeEditor');
-        const editorOutput = document.getElementById('editorOutput');
-        const editorTitle = document.getElementById('editorTitle');
+    $("toStep2").addEventListener("click", () => {
+      const n = nameInput.value.trim();
+      if (!n) {
+        $("nameStatus").textContent = "先告诉我你的名字，我才能为你开牌。";
+        return;
+      }
+      currentName = n;
+      $("nameStatus").textContent = `欢迎你，${n}。`;
+      step2.classList.remove("hidden");
+      qInput.focus();
+    });
 
-        // 女朋友系统状态
-        let girlfriendState = {
-            name: null,
-            nameAsked: false,
-            angryLevel: 0,
-            isSilent: false,
-            waitingForConfirmation: false,
-            tempName: null,
-            exclamationCount: 0,
-            lastAskTime: null,
-            askTimerActive: false,
-            firstTimeOpen: true
-        };
+    $("drawBtn").addEventListener("click", () => {
+      const q = qInput.value.trim();
+      if (!currentName) {
+        $("nameStatus").textContent = "请先填写名字。";
+        return;
+      }
+      if (!q) {
+        alert("请先输入你希望占卜的问题。");
+        return;
+      }
+      currentQuestion = q;
+      const spreadType = spreadSel.value;
+      const labels = positionsMap[spreadType];
+      const cards = drawThree();
 
-        const angryResponses = [
-            "哈哈，haruki君我听不懂呢",
-            "别闹了，Haruki君！！",
-            "我要生气了，Haruki",
-            "...",
-            "？滚开"
-        ];
+      $("greeting").textContent = `${currentName} 的塔罗牌面`;
+      $("questionEcho").innerHTML = `你的问题：<em>${currentQuestion}</em>`;
 
-        // 启动定时询问
-        function startPeriodicAsk() {
-            if (girlfriendState.askTimerActive || girlfriendState.name) return;
-            girlfriendState.askTimerActive = true;
-            girlfriendState.lastAskTime = Date.now();
-            
-            const askInterval = setInterval(() => {
-                if (girlfriendState.name) {
-                    clearInterval(askInterval);
-                    girlfriendState.askTimerActive = false;
-                    return;
-                }
-                
-                const now = Date.now();
-                if (now - girlfriendState.lastAskTime >= 10000) {
-                    girlfriendState.lastAskTime = now;
-                    const exclamation = '!'.repeat(girlfriendState.exclamationCount + 1);
-                    addOutput(`<span class="system">Haruki君真的不记得我叫什么了吗${exclamation}😠：</span>`);
-                    girlfriendState.waitingForConfirmation = false;
-                    girlfriendState.exclamationCount++;
-                }
-            }, 10000);
-        }
+      const cardsWrap = $("cards");
+      cardsWrap.innerHTML = cards.map((c, i) => `
+        <article class="tarot-card">
+          <div class="tag">${labels[i]}</div>
+          <h3>${c.name} · ${c.orientation}</h3>
+          <p>${c.meaning}</p>
+        </article>
+      `).join("");
 
-        // 检查是否询问名字
-        function checkAskingName(text) {
-            const keywords = ['你是谁', '你叫什么', 'whoru', '你的名字'];
-            return keywords.some(keyword => text.toLowerCase().includes(keyword.toLowerCase()));
-        }
+      $("summary").innerHTML = composeSummary(cards, spreadType);
+      resultPanel.classList.remove("hidden");
+      resultPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
 
-        // 打开编辑器
-        function openEditor() {
-            editorWindow.classList.add('active');
-            editorTitle.textContent = `${girlfriendState.name} 编辑器`;
-            
-            if (girlfriendState.firstTimeOpen) {
-                girlfriendState.firstTimeOpen = false;
-                codeEditor.value = `# 欢迎使用 "${girlfriendState.name}" 编程语言！
-# 这是一个特殊的交互式编程环境
-# 
-# 基本语法示例：
-# print "Hello World"
-# 
-# 点击右上角的 RUN 按钮来运行代码
-# 祝你编程愉快！ ❤️
+    $("redraw").addEventListener("click", () => {
+      $("drawBtn").click();
+    });
 
-print "Hello, ${girlfriendState.name}!"`;
-                editorOutput.innerHTML = '<span class="guide-text">输出将显示在这里...</span>';
-            }
-            
-            codeEditor.focus();
-        }
-
-        // 关闭编辑器
-        function closeEditor() {
-            editorWindow.classList.remove('active');
-            input.focus();
-        }
-
-        // 运行代码
-        function runCode() {
-            const code = codeEditor.value;
-            editorOutput.innerHTML = '';
-            
-            try {
-                const lines = code.split('\n');
-                let output = [];
-                
-                for (let line of lines) {
-                    line = line.trim();
-                    if (line.startsWith('#') || line === '') continue;
-                    
-                    if (line.startsWith('print ')) {
-                        const text = line.substring(6).replace(/^["']|["']$/g, '');
-                        output.push(`<span style="color: #4B4E7B;">${text}</span>`);
-                    }
-                }
-                
-                if (output.length === 0) {
-                    editorOutput.innerHTML = '<span class="guide-text">没有输出</span>';
-                } else {
-                    editorOutput.innerHTML = output.join('<br>');
-                }
-            } catch (e) {
-                editorOutput.innerHTML = `<span style="color: #ff4444;">错误: ${e.message}</span>`;
-            }
-        }
-
-        const commands = {
-            help: () => {
-                return `<span class="info">可用命令：</span>
-  help     - 显示此帮助信息
-  clear    - 清屏
-  echo     - 显示文本（用法：echo [文本]）
-  date     - 显示当前日期时间
-  about    - 关于此网站
-  whoami   - 显示当前用户信息
-  ls       - 列出文件
-  calc     - 简单计算器（用法：calc 2+2）
-  cat      - 让小猫打招呼
-  ${girlfriendState.name ? girlfriendState.name + '     - 启动"女朋友"语言环境' : ''}`;
-            },
-            clear: () => {
-                output.innerHTML = '';
-                return null;
-            },
-            echo: (args) => {
-                return args.join(' ') || '';
-            },
-            date: () => {
-                return new Date().toLocaleString('zh-CN');
-            },
-            about: () => {
-                return `<span class="success">交互式命令行网站</span>
-一个模拟终端界面的交互式网站
-粉蓝色主题配色
-支持多种命令操作`;
-            },
-            whoami: () => {
-                return '<span class="success">Haruki</span>';
-            },
-            ls: () => {
-                return `<span class="info">documents/</span>
-<span class="info">downloads/</span>
-<span class="info">pictures/</span>
-readme.txt
-config.json`;
-            },
-            calc: (args) => {
-                try {
-                    const expr = args.join('');
-                    const result = eval(expr.replace(/[^0-9+\-*/().]/g, ''));
-                    return `<span class="success">${result}</span>`;
-                } catch (e) {
-                    return `<span class="error">计算错误</span>`;
-                }
-            },
-            cat: () => {
-                return '<span class="success">にゃー！ ^_^</span>';
-            }
-        };
-
-        // 检查是否包含道歉关键词
-        function hasApologyKeywords(text) {
-            const keywords = ['我错了', '对不起', '爱', '非常抱歉', '不好意思', '不要'];
-            return keywords.some(keyword => text.includes(keyword));
-        }
-
-        // 处理命令
-        function handleCommand(command) {
-            // 如果已经有名字了，不再触发询问机制
-            if (girlfriendState.name) {
-                const [cmd, ...args] = command.split(' ');
-                
-                if (commands[cmd]) {
-                    const result = commands[cmd](args);
-                    return result;
-                } else {
-                    return `<span class="error">命令未找到: ${cmd}</span>`;
-                }
-            }
-
-            // 如果在等待确认
-            if (girlfriendState.waitingForConfirmation) {
-                if (command.toLowerCase() === 'y') {
-                    girlfriendState.name = girlfriendState.tempName;
-                    girlfriendState.angryLevel = 0;
-                    girlfriendState.isSilent = false;
-                    girlfriendState.exclamationCount = 0;
-                    girlfriendState.askTimerActive = false;
-                    commands[girlfriendState.name] = () => {
-                        openEditor();
-                        return null;
-                    };
-                    return `<span class="success">太好了！我就知道Haruki君记得我叫${girlfriendState.name}！ ❤️</span>
-<span class="info">现在你可以输入 "${girlfriendState.name}" 来启动编程环境了~</span>`;
-                } else if (command.toLowerCase() === 'n') {
-                    girlfriendState.waitingForConfirmation = false;
-                    const exclamation = '!'.repeat(girlfriendState.exclamationCount + 1);
-                    girlfriendState.exclamationCount++;
-                    setTimeout(() => {
-                        addOutput(`<span class="system">Haruki君真的不记得我叫什么了吗${exclamation}😠：</span>`);
-                        terminal.scrollTop = terminal.scrollHeight;
-                    }, 100);
-                    return null;
-                } else {
-                    return `<span class="system">请回答 y 或 n</span>`;
-                }
-            }
-
-            // 如果正在询问名字过程中收到输入（不是y/n）
-            if (girlfriendState.askTimerActive && !girlfriendState.waitingForConfirmation) {
-                girlfriendState.tempName = command;
-                girlfriendState.waitingForConfirmation = true;
-                return `<span class="system">你确定吗？【y/n】</span>`;
-            }
-
-            // 检查用户是否主动询问名字
-            if (checkAskingName(command)) {
-                startPeriodicAsk();
-                const exclamation = '!'.repeat(girlfriendState.exclamationCount + 1);
-                girlfriendState.exclamationCount++;
-                return `<span class="system">Haruki君真的不记得我叫什么了吗${exclamation}😠：</span>`;
-            }
-
-            // 如果女朋友在沉默中
-            if (girlfriendState.isSilent) {
-                if (hasApologyKeywords(command)) {
-                    girlfriendState.isSilent = false;
-                    girlfriendState.angryLevel = 4; // 回到第5级回复
-                    return `<span class="system">哼...看在你这么诚恳的份上...</span>`;
-                }
-                return null;
-            }
-
-            const [cmd, ...args] = command.split(' ');
-
-            // 检查是否是已知命令
-            if (commands[cmd]) {
-                const result = commands[cmd](args);
-                girlfriendState.angryLevel = 0; // 重置生气等级
-                return result;
-            } else {
-                // 未知命令，触发生气机制
-                if (girlfriendState.angryLevel < 5) {
-                    const response = angryResponses[girlfriendState.angryLevel];
-                    girlfriendState.angryLevel++;
-                    
-                    if (girlfriendState.angryLevel === 5) {
-                        girlfriendState.isSilent = true;
-                    }
-                    
-                    return `<span class="system">${response}</span>`;
-                }
-                return null;
-            }
-        }
-
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                // 小猫打字动画
-                canvas.classList.add('cat-typing');
-                setTimeout(() => canvas.classList.remove('cat-typing'), 900);
-
-                const command = input.value.trim();
-                
-                if (command) {
-                    addOutput(`<span class="prompt">user@terminal:~$ </span><span class="user-input">${command}</span>`);
-                    
-                    const result = handleCommand(command);
-                    if (result !== null) {
-                        addOutput(result);
-                    }
-                }
-                
-                input.value = '';
-                terminal.scrollTop = terminal.scrollHeight;
-            }
-        });
-
-        function addOutput(text) {
-            const line = document.createElement('div');
-            line.className = 'output-line';
-            line.innerHTML = text;
-            output.appendChild(line);
-        }
-
-        input.focus();
-        document.querySelector('.terminal-window').addEventListener('click', () => input.focus());
-
-        // 窗口拖动功能
-        let isDragging = false;
-        let currentX, currentY, initialX, initialY;
-        const terminalWindow = document.getElementById('terminalWindow');
-        const windowHeader = document.getElementById('windowHeader');
-
-        windowHeader.addEventListener('mousedown', (e) => {
-            isDragging = true;
-            initialX = e.clientX - terminalWindow.offsetLeft;
-            initialY = e.clientY - terminalWindow.offsetTop;
-        });
-
-        document.addEventListener('mousemove', (e) => {
-            if (isDragging) {
-                e.preventDefault();
-                currentX = e.clientX - initialX;
-                currentY = e.clientY - initialY;
-                terminalWindow.style.left = currentX + 'px';
-                terminalWindow.style.top = currentY + 'px';
-                terminalWindow.style.position = 'absolute';
-            }
-        });
-
-        document.addEventListener('mouseup', () => {
-            isDragging = false;
-        });
-    </script>
+    $("resetAll").addEventListener("click", () => {
+      currentName = "";
+      currentQuestion = "";
+      nameInput.value = "";
+      qInput.value = "";
+      $("nameStatus").textContent = "";
+      step2.classList.add("hidden");
+      resultPanel.classList.add("hidden");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  </script>
 </body>
 </html>
