@@ -140,6 +140,7 @@
       border:1px solid var(--line);border-radius:14px;padding:12px;
       background:linear-gradient(180deg,rgba(24,14,36,.9),rgba(14,9,22,.88));
       backdrop-filter:blur(7px);
+      max-height:55vh;overflow:auto;-webkit-overflow-scrolling:touch;
       display:none;
     }
     .result.show{display:block}
@@ -168,6 +169,17 @@
     }
     .dialog textarea{min-height:92px;resize:vertical}
     .dialog .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+
+    @media (max-width: 768px){
+      body{overflow-y:auto;overflow-x:hidden}
+      .shell{height:auto;min-height:100vh;padding:12px 8px 18px}
+      .stage{height:auto;min-height:calc(100vh - 88px);overflow:auto;padding:8px 0 220px}
+      .hint{position:relative;left:auto;top:auto;transform:none;display:table;margin:4px auto 0}
+      .fan{top:44%;gap:6px;transform:translate(-50%,-50%) scale(.8)}
+      .choice{width:116px;height:174px}
+      .result{position:relative;left:auto;bottom:auto;transform:none;width:96%;margin:14px auto 0;max-height:none}
+      .cards{grid-template-columns:1fr}
+    }
 
   </style>
 </head>
@@ -329,6 +341,56 @@
       })
     }
 
+    function detectDomain(question){
+      const q=question || '';
+      if(/股票|投资|收益|财务|财富|钱|收入/.test(q)) return '财富';
+      if(/科研|论文|博士|实验|课题|研究/.test(q)) return '科研';
+      if(/感情|关系|恋爱|婚姻/.test(q)) return '关系';
+      if(/工作|面试|职业|升职|项目/.test(q)) return '事业';
+      return '成长';
+    }
+
+    function composeReading(cards, labels, question){
+      const domain=detectDomain(question);
+      const revCount=cards.filter(c=>c.ori==='逆位').length;
+      const riskLine = revCount>=2
+        ? '本次牌面逆位偏多，提示你要先降风险、后求速度。'
+        : '本次牌面正位较多，趋势可控，适合稳步推进。';
+
+      const nowAdvice = cards[1].ori==='逆位'
+        ? '先减少分心项，把任务收敛到 1 个主线目标。'
+        : '当下执行力是优势，优先做最关键的第一步。';
+
+      const action48 = {
+        '财富':'48小时内：写出一条交易规则（入场、止损、止盈）并严格执行一次。',
+        '科研':'48小时内：完成一个最小实验闭环（假设-验证-结论）。',
+        '关系':'48小时内：做一次真诚沟通，明确你真正的边界与期待。',
+        '事业':'48小时内：推进最卡的一项任务，并输出可见结果。',
+        '成长':'48小时内：完成一个你拖延最久的小任务。'
+      }[domain];
+
+      const action7d = {
+        '财富':'7天内：做一次完整复盘，记录情绪与策略偏差。',
+        '科研':'7天内：形成一页实验报告，标注可复现步骤。',
+        '关系':'7天内：持续一项稳定投入，避免情绪化拉扯。',
+        '事业':'7天内：交付一个可展示成果（文档/代码/内容）。',
+        '成长':'7天内：把目标拆成每天可执行动作并打卡。'
+      }[domain];
+
+      return `
+        <strong>综合解读：</strong><br>
+        ① ${labels[0]}位 <b>${cards[0].name}${cards[0].ori}</b>：${cards[0].meaning}。<br>
+        ② ${labels[1]}位 <b>${cards[1].name}${cards[1].ori}</b>：${cards[1].meaning}。<br>
+        ③ ${labels[2]}位 <b>${cards[2].name}${cards[2].ori}</b>：${cards[2].meaning}。<br><br>
+        <strong>风险提示：</strong>${riskLine}<br>
+        <strong>当前重点：</strong>${nowAdvice}<br>
+        <strong>行动建议：</strong><br>
+        • ${action48}<br>
+        • ${action7d}<br><br>
+        <strong>一句话箴言：</strong>先把可控的事做好，命运会站在行动者这一边。
+      `;
+    }
+
     function reveal(){
       const labels=spreads[state.spread];
       const cards=state.picked.map(c=>{
@@ -346,15 +408,10 @@
         </article>
       `).join('');
 
-      $("summary").innerHTML=`
-        <strong>综合解读：</strong><br>
-        ① ${labels[0]}位 <b>${cards[0].name}${cards[0].ori}</b>：先复盘你过去的策略。<br>
-        ② ${labels[1]}位 <b>${cards[1].name}${cards[1].ori}</b>：当下关键在执行节奏。<br>
-        ③ ${labels[2]}位 <b>${cards[2].name}${cards[2].ori}</b>：未来趋势可被你主动塑造。<br><br>
-        建议：把目标拆成“今天1件事 + 本周3件事”，让灵感变成结果。
-      `;
+      $("summary").innerHTML=composeReading(cards, labels, state.question);
       $("result").classList.add('show');
       $("hint").textContent='占卜完成，可点击“重新开始”再来一次';
+      $("result").scrollIntoView({behavior:'smooth', block:'start'});
     }
 
     // flow
