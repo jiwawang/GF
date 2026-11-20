@@ -50,7 +50,8 @@ h3 { font-size: 16px; margin: 22px 0 8px; }
 .card img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; background: var(--chip); cursor: zoom-in; }
 .card .body { padding: 10px 12px 12px; font-size: 14px; }
 .card .lab { font-size: 12px; color: var(--muted); margin-top: 8px; }
-.card .out { white-space: pre-wrap; }
+.card .out { white-space: pre-wrap; max-height: 11em; overflow-y: auto; }
+.card .ref, .card .base { max-height: 11em; overflow-y: auto; }
 .card .ref { white-space: pre-wrap; color: var(--muted); }
 .card .base { white-space: pre-wrap; color: var(--muted); font-size: 13px; }
 details summary { cursor: pointer; color: var(--accent); font-size: 13px; margin-top: 6px; }
