@@ -2,7 +2,13 @@
  {
   "id": "stage1",
   "dir": "data/stage1/",
-  "title": "第一阶段：只训 projector",
-  "description": "视觉塔（CONCH）和语言模型（OLMo-2）都冻结，只训练中间把图像特征翻译给语言模型的 projector。目标是让语言模型能“看懂”CONCH 的图像特征，用 PathGen 的图–描述对训练。"
+  "title": "第一阶段：只训 projector（PathGen 子集，1.8 万对）",
+  "description": "视觉塔（CONCH）和语言模型（OLMo-2）都冻结，只训练中间把图像特征翻译给语言模型的 projector。目标是让语言模型能“看懂”CONCH 的图像特征。这一节用的是 400 张玻片 × 50 对的子集，单卡，3 个 epoch。"
+ },
+ {
+  "id": "stage1_full",
+  "dir": "data/stage1_full/",
+  "title": "第一阶段：只训 projector（PathGen 全量，160 万对）",
+  "description": "和上一节相同的模型和超参数，换成 PathGen 全部 7,203 张 TCGA 玻片（按玻片留 1% 做验证），2 个节点 × 2 张卡 DDP，等效 batch 32，1 个 epoch。"
  }
 ]
