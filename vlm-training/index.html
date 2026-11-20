@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>病理 VLM 训练</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #f6f7f9; --card: #ffffff; --text: #1d2330; --muted: #667085; --line: #e4e7ec;
+  --accent: #2f6fde; --accent2: #d9480f; --accent3: #2b8a3e; --warn: #b54708; --bad: #c01048;
+  --chip: #eef2f7;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #12151b; --card: #1a1f27; --text: #e6e9ef; --muted: #98a2b3; --line: #2b323d;
+    --accent: #6ea1ff; --accent2: #ff8a50; --accent3: #5cc277; --warn: #f5a524; --bad: #f97066;
+    --chip: #232a35;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text);
+  font: 15px/1.55 -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
+main { max-width: 1120px; margin: 0 auto; padding: 24px 16px 64px; }
+h1 { font-size: 24px; margin: 0 0 4px; }
+.sub { color: var(--muted); margin: 0 0 24px; }
+section.stage { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 20px; margin-bottom: 28px; }
+.stage-head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 14px; }
+.stage-head h2 { font-size: 20px; margin: 0; }
+.badge { font-size: 13px; padding: 2px 10px; border-radius: 99px; background: var(--chip); color: var(--muted); }
+.badge.run { background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent); }
+.badge.done { background: color-mix(in srgb, var(--accent3) 18%, transparent); color: var(--accent3); }
+.badge.bad { background: color-mix(in srgb, var(--bad) 16%, transparent); color: var(--bad); }
+.badge.stale { background: color-mix(in srgb, var(--warn) 16%, transparent); color: var(--warn); }
+.desc { color: var(--muted); margin: 0 0 16px; }
+.bar { height: 10px; background: var(--chip); border-radius: 99px; overflow: hidden; margin: 6px 0 4px; }
+.bar > div { height: 100%; background: var(--accent); width: 0; transition: width .6s; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 14px 0 18px; }
+.stat { background: var(--chip); border-radius: 8px; padding: 10px 12px; }
+.stat .k { font-size: 12px; color: var(--muted); }
+.stat .v { font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; }
+h3 { font-size: 16px; margin: 22px 0 8px; }
+.chart-box { position: relative; height: 320px; }
+.note { font-size: 13px; color: var(--muted); }
+.controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 8px 0 14px; }
+.controls input[type=range] { flex: 1; min-width: 180px; }
+.controls label { font-size: 14px; color: var(--muted); }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
+.card { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; display: flex; flex-direction: column; }
+.card img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; background: var(--chip); cursor: zoom-in; }
+.card .body { padding: 10px 12px 12px; font-size: 14px; }
+.card .lab { font-size: 12px; color: var(--muted); margin-top: 8px; }
+.card .out { white-space: pre-wrap; }
+.card .ref { white-space: pre-wrap; color: var(--muted); }
+.card .base { white-space: pre-wrap; color: var(--muted); font-size: 13px; }
+details summary { cursor: pointer; color: var(--accent); font-size: 13px; margin-top: 6px; }
+table.cfg { border-collapse: collapse; font-size: 14px; }
+table.cfg td { padding: 3px 14px 3px 0; border-bottom: 1px solid var(--line); }
+table.cfg td:first-child { color: var(--muted); }
+.err { white-space: pre-wrap; font: 12px/1.4 ui-monospace, Consolas, monospace; background: var(--chip); padding: 10px; border-radius: 8px; overflow-x: auto; }
+.empty { color: var(--muted); padding: 18px 0; }
+#zoom { position: fixed; inset: 0; background: rgba(0,0,0,.8); display: none; align-items: center; justify-content: center; z-index: 9; cursor: zoom-out; }
+#zoom img { max-width: 92vw; max-height: 92vh; }
+footer { color: var(--muted); font-size: 13px; text-align: center; }
+</style>
+</head>
+<body>
+<main>
+  <h1>病理 VLM 训练</h1>
+  <p class="sub">CONCH 视觉塔 + OLMo-2 1B，PathGen 数据。实验分支 <code>exp/pathology-stage1</code>，老师尚未布置，结果仅供参考。页面每分钟自动刷新。</p>
+  <div id="stages"></div>
+  <footer id="foot"></footer>
+</main>
+<div id="zoom"><img alt=""></div>
+<script>
+const PHASE = {
+  "starting": "启动中", "loading models": "加载模型", "reading data": "读取数据",
+  "evaluating before training": "训练前评估", "training": "训练中", "generating samples": "生成样例",
+  "full val loss": "整个验证集评估", "final evaluation": "最终评估", "finished": "已完成", "failed": "失败",
+  "not started": "尚未开始"
+};
+const charts = {};
+const chosenStep = {};
+
+function bust(url) { return url + (url.includes("?") ? "&" : "?") + "t=" + Date.now(); }
+async function getJSON(url) {
+  const r = await fetch(bust(url), { cache: "no-store" });
+  if (!r.ok) throw new Error(url + " " + r.status);
+  return r.json();
+}
+function css(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+function fmtDur(sec) {
+  if (sec == null || !isFinite(sec)) return "—";
+  sec = Math.max(0, Math.round(sec));
+  const h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60);
+  return h ? `${h} 小时 ${m} 分` : `${m} 分 ${sec % 60} 秒`;
+}
+function ago(iso) {
+  if (!iso) return "—";
+  const s = (Date.now() - new Date(iso).getTime()) / 1000;
+  if (s < 90) return Math.round(s) + " 秒前";
+  if (s < 5400) return Math.round(s / 60) + " 分钟前";
+  return Math.round(s / 3600) + " 小时前";
+}
+function esc(t) { return String(t ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]); }
+function num(v, d = 4) { return v == null ? "—" : Number(v).toFixed(d); }
+
+function stageShell(st) {
+  const el = document.createElement("section");
+  el.className = "stage"; el.id = "stage-" + st.id;
+  el.innerHTML = `
+    <div class="stage-head"><h2>${esc(st.title)}</h2><span class="badge" data-f="badge">—</span></div>
+    <p class="desc">${esc(st.description || "")}</p>
+    <div data-f="body"><div class="empty">读取中…</div></div>`;
+  return el;
+}
+
+function renderStage(st, el, d) {
+  const s = d.status || { phase: "not started" };
+  const badge = el.querySelector('[data-f="badge"]');
+  const stale = s.phase !== "finished" && s.phase !== "failed" && s.updated_at &&
+    (Date.now() - new Date(s.updated_at).getTime()) > 20 * 60 * 1000;
+  badge.textContent = (PHASE[s.phase] || s.phase) + (stale ? "（超过 20 分钟没有更新）" : "");
+  badge.className = "badge " + (s.phase === "finished" ? "done" : s.phase === "failed" ? "bad" : stale ? "stale" :
+    s.phase === "not started" ? "" : "run");
+  const body = el.querySelector('[data-f="body"]');
+  if (s.phase === "not started") { body.innerHTML = `<div class="empty">这一阶段还没有开始。</div>`; return; }
+
+  const step = s.step || 0, max = s.max_steps || 1;
+  const pct = Math.min(100, 100 * step / max);
+  const spe = s.steps_per_epoch;
+  let eta = null;
+  if (s.phase !== "finished" && s.sec_per_step && step < max) eta = (max - step) * s.sec_per_step;
+  const totalEp = s.planned_epochs ? s.planned_epochs.toFixed(2).replace(/\.?0+$/, "") : "—";
+
+  if (!body.dataset.built) {
+    body.innerHTML = `
+      <div class="note" data-f="progtxt"></div>
+      <div class="bar"><div data-f="bar"></div></div>
+      <div class="stats" data-f="stats"></div>
+      <div data-f="err"></div>
+      <h3>Loss 曲线</h3>
+      <div class="chart-box"><canvas data-f="loss"></canvas></div>
+      <p class="note">横轴是 epoch（走完一遍训练集算 1）。实线是每次评估时取前几个 batch 算的 loss；
+        方点是在整个验证集上算的 loss（训练前一次，之后每个 epoch 结束一次）。</p>
+      <h3>速度：时间花在哪</h3>
+      <div class="chart-box" style="height:240px"><canvas data-f="speed"></canvas></div>
+      <p class="note">每隔 25 步记一次。蓝线是每步耗时（左轴）；橙线是其中等数据的比例（右轴），
+        越接近 0 说明读图不是瓶颈、时间都花在显卡计算上；绿线是显卡利用率（右轴）。数据根在节点本地盘上。</p>
+      <h3>学习率</h3>
+      <div class="chart-box" style="height:180px"><canvas data-f="lr"></canvas></div>
+      <h3>固定验证图上的生成结果</h3>
+      <p class="note">同一组验证图，每隔一段训练让模型看图回答一次（贪心解码）。拖动滑块看不同训练阶段的回答；
+        "训练前"是 projector 还没训练时的回答。</p>
+      <div class="controls"><label data-f="steplabel"></label><input type="range" data-f="slider" min="0" max="0" value="0"></div>
+      <div class="grid" data-f="grid"></div>
+      <h3>设置</h3>
+      <table class="cfg" data-f="cfg"></table>`;
+    body.dataset.built = "1";
+  }
+  body.querySelector('[data-f="progtxt"]').textContent =
+    `第 ${step.toLocaleString()} / ${max.toLocaleString()} 步（${pct.toFixed(1)}%），` +
+    `第 ${(s.epoch || 0).toFixed(2)} / ${totalEp} 个 epoch`;
+  body.querySelector('[data-f="bar"]').style.width = pct + "%";
+  const lastM = (d.metrics || []).slice(-1)[0] || {};
+  const lastV = (d.val_full || []).slice(-1)[0] || {};
+  const stats = [
+    ["最近的训练 loss", num(lastM.train_loss)],
+    ["最近的验证 loss", num(lastM.val_loss)],
+    ["整个验证集 loss", num(lastV.val_loss_full)],
+    ["每步耗时", s.sec_per_step ? s.sec_per_step.toFixed(2) + " 秒" : "—"],
+    ["等数据的比例", s.data_wait_frac != null ? (100 * s.data_wait_frac).toFixed(1) + "%" : "—"],
+    ["显卡利用率", s.gpu_util != null ? s.gpu_util.toFixed(0) + "%" : "—"],
+    [s.phase === "finished" ? "总用时" : "已用时", fmtDur(s.elapsed_sec)],
+    ["预计剩余", s.phase === "finished" ? "—" : fmtDur(eta)],
+    ["状态更新于", ago(s.updated_at)],
+    ["网页同步于", ago(d.synced_at)],
+  ];
+  body.querySelector('[data-f="stats"]').innerHTML =
+    stats.map(([k, v]) => `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div></div>`).join("");
+  body.querySelector('[data-f="err"]').innerHTML = s.phase === "failed"
+    ? `<h3>出错信息</h3><div class="err">${esc(s.error)}\n\n${esc(s.traceback || "")}</div>` : "";
+
+  drawLoss(st.id, body, d, spe);
+  drawLr(st.id, body, d);
+  drawSpeed(st.id, body, d);
+  drawSamples(st.id, body, d);
+
+  const cfg = [
+    ["数据", s.data_root], ["训练集 / 验证集", s.train_size != null ? `${s.train_size} / ${s.val_size} 对` : "—"],
+    ["batch × 梯度累积", s.batch_size ? `${s.batch_size} × ${s.grad_accum_steps}` : "—"],
+    ["每个 epoch 的步数", spe ?? "—"], ["读数据的进程数", s.num_workers ?? "—"], ["学习率（峰值）", s.base_lr ?? "—"], ["warmup 步数", s.warmup_steps ?? "—"],
+    ["机器", `${s.host || "—"}，${s.gpu || "—"}`], ["Slurm 作业", s.job_id || "—"], ["运行目录", s.run_name || "—"],
+    ["开始时间", s.started_at ? new Date(s.started_at).toLocaleString() : "—"],
+    ["峰值显存", s.peak_gib ? s.peak_gib.toFixed(1) + " GiB" : "—"],
+  ];
+  body.querySelector('[data-f="cfg"]').innerHTML = cfg.map(([k, v]) => `<tr><td>${k}</td><td>${esc(v)}</td></tr>`).join("");
+}
+
+function baseOpts(xTitle) {
+  const grid = css("--line"), tick = css("--muted");
+  return {
+    responsive: true, maintainAspectRatio: false, animation: false, interaction: { mode: "nearest", intersect: false },
+    scales: {
+      x: { type: "linear", title: { display: true, text: xTitle, color: tick }, grid: { color: grid }, ticks: { color: tick } },
+      y: { grid: { color: grid }, ticks: { color: tick } }
+    },
+    plugins: { legend: { labels: { color: tick } } }
+  };
+}
+
+function drawLoss(id, body, d, spe) {
+  const m = d.metrics || [], v = d.val_full || [];
+  const ds = [
+    { label: "训练 loss", data: m.map(r => ({ x: r.epoch, y: r.train_loss })), borderColor: css("--accent"), pointRadius: 0, borderWidth: 2 },
+    { label: "验证 loss", data: m.map(r => ({ x: r.epoch, y: r.val_loss })), borderColor: css("--accent2"), pointRadius: 0, borderWidth: 2 },
+    { label: "整个验证集 loss", data: v.map(r => ({ x: r.epoch, y: r.val_loss_full })), borderColor: css("--accent3"),
+      backgroundColor: css("--accent3"), showLine: false, pointStyle: "rect", pointRadius: 6 },
+  ];
+  const key = id + "-loss";
+  if (charts[key]) { charts[key].data.datasets.forEach((x, i) => x.data = ds[i].data); charts[key].update(); return; }
+  const opts = baseOpts("epoch");
+  opts.plugins.tooltip = { callbacks: { title: items => {
+    const x = items[0].parsed.x; return `epoch ${x.toFixed(2)}` + (spe ? `（第 ${Math.round(x * spe)} 步）` : "");
+  } } };
+  charts[key] = new Chart(body.querySelector('[data-f="loss"]'), { type: "line", data: { datasets: ds }, options: opts });
+}
+
+function drawLr(id, body, d) {
+  const m = d.metrics || [];
+  const data = m.map(r => ({ x: r.epoch, y: r.lr }));
+  const key = id + "-lr";
+  if (charts[key]) { charts[key].data.datasets[0].data = data; charts[key].update(); return; }
+  const opts = baseOpts("epoch"); opts.plugins.legend.display = false;
+  charts[key] = new Chart(body.querySelector('[data-f="lr"]'), { type: "line",
+    data: { datasets: [{ label: "学习率", data, borderColor: css("--muted"), pointRadius: 0, borderWidth: 2 }] }, options: opts });
+}
+
+function drawSpeed(id, body, d) {
+  const t = d.throughput || [];
+  const ds = [
+    { label: "每步耗时（秒）", data: t.map(r => ({ x: r.epoch, y: r.sec_per_step })), borderColor: css("--accent"), pointRadius: 0, borderWidth: 2, yAxisID: "y" },
+    { label: "等数据的比例（%）", data: t.map(r => ({ x: r.epoch, y: r.data_wait_frac == null ? null : 100 * r.data_wait_frac })), borderColor: css("--accent2"), pointRadius: 0, borderWidth: 2, yAxisID: "y1" },
+    { label: "显卡利用率（%）", data: t.map(r => ({ x: r.epoch, y: r.gpu_util })), borderColor: css("--accent3"), pointRadius: 0, borderWidth: 1.5, yAxisID: "y1" },
+  ];
+  const key = id + "-speed";
+  if (charts[key]) { charts[key].data.datasets.forEach((x, i) => x.data = ds[i].data); charts[key].update(); return; }
+  const opts = baseOpts("epoch");
+  opts.scales.y.beginAtZero = true;
+  opts.scales.y1 = { position: "right", min: 0, max: 100, grid: { drawOnChartArea: false }, ticks: { color: css("--muted") } };
+  charts[key] = new Chart(body.querySelector('[data-f="speed"]'), { type: "line", data: { datasets: ds }, options: opts });
+}
+
+function drawSamples(id, body, d) {
+  const sm = d.samples || { meta: [], steps: [] };
+  const slider = body.querySelector('[data-f="slider"]'), label = body.querySelector('[data-f="steplabel"]');
+  const grid = body.querySelector('[data-f="grid"]');
+  if (!sm.steps.length) { grid.innerHTML = `<div class="empty">还没有生成结果。</div>`; return; }
+  const n = sm.steps.length;
+  const wasAtEnd = chosenStep[id] == null || chosenStep[id] >= Number(slider.max);
+  slider.max = n - 1;
+  if (wasAtEnd) chosenStep[id] = n - 1;
+  slider.value = chosenStep[id];
+  const base = sm.steps[0];
+  const paint = () => {
+    const cur = sm.steps[chosenStep[id]];
+    label.textContent = cur.step === 0 ? "训练前" : `第 ${cur.step} 步（epoch ${cur.epoch.toFixed(2)}）`;
+    const outs = Object.fromEntries(cur.outputs.map(o => [o.k, o.output]));
+    const bases = Object.fromEntries(base.outputs.map(o => [o.k, o.output]));
+    grid.innerHTML = sm.meta.map(p => `
+      <div class="card">
+        <img src="${d.dir}thumbs/${p.k}.jpg" alt="验证图 ${p.k}" loading="lazy">
+        <div class="body">
+          <div class="lab">模型的回答</div><div class="out">${esc(outs[p.k] || "（空）")}</div>
+          <details><summary>参考答案</summary><div class="ref">${esc(p.reference)}</div></details>
+          ${cur.step !== 0 ? `<details><summary>训练前的回答</summary><div class="base">${esc(bases[p.k] || "")}</div></details>` : ""}
+          <div class="lab">问题：${esc(p.question.replace("<image>", "").trim())}　·　${esc(p.image)}</div>
+        </div>
+      </div>`).join("");
+  };
+  slider.oninput = () => { chosenStep[id] = Number(slider.value); paint(); };
+  paint();
+}
+
+async function refresh() {
+  let stages;
+  try { stages = await getJSON("data/stages.json"); }
+  catch (e) { document.getElementById("stages").innerHTML = `<div class="empty">读不到 data/stages.json：${esc(e.message)}</div>`; return; }
+  const root = document.getElementById("stages");
+  for (const st of stages) {
+    let el = document.getElementById("stage-" + st.id);
+    if (!el) { el = stageShell(st); root.appendChild(el); }
+    let d = { status: null, dir: st.dir };
+    try { Object.assign(d, await getJSON(st.dir + "live.json")); } catch (e) { /* not started yet */ }
+    renderStage(st, el, d);
+  }
+  document.getElementById("foot").textContent = "页面刷新于 " + new Date().toLocaleTimeString();
+}
+document.addEventListener("click", e => {
+  const z = document.getElementById("zoom");
+  if (e.target.matches(".card img")) { z.querySelector("img").src = e.target.src; z.style.display = "flex"; }
+  else if (e.target.closest("#zoom")) z.style.display = "none";
+});
+refresh();
+setInterval(refresh, 60000);
+</script>
+</body>
+</html>
